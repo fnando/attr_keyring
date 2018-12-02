@@ -1,3 +1,6 @@
+require "simplecov"
+SimpleCov.start
+
 require "bundler/setup"
 require "attr_keyring"
 require "minitest/utils"
