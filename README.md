@@ -1,12 +1,12 @@
-# attr_keyring
+![attr_keyring: Simple encryption-at-rest with key rotation support for ActiveRecord.](https://raw.githubusercontent.com/fnando/attr_keyring/master/attr_keyring.png)
 
-[![Travis-CI](https://travis-ci.org/fnando/attr_keyring.svg)](https://travis-ci.org/fnando/attr_keyring)
-[![Code Climate](https://codeclimate.com/github/fnando/attr_keyring/badges/gpa.svg)](https://codeclimate.com/github/fnando/attr_keyring)
-[![Test Coverage](https://codeclimate.com/github/fnando/attr_keyring/badges/coverage.svg)](https://codeclimate.com/github/fnando/attr_keyring/coverage)
-[![Gem](https://img.shields.io/gem/v/attr_keyring.svg)](https://rubygems.org/gems/attr_keyring)
-[![Gem](https://img.shields.io/gem/dt/attr_keyring.svg)](https://rubygems.org/gems/attr_keyring)
-
-Simple encryption-at-rest with key rotation support for ActiveRecord.
+<p align="center">
+  <a href="https://travis-ci.org/fnando/attr_keyring"><img src="https://travis-ci.org/fnando/attr_keyring.svg" alt="Travis-CI"></a>
+  <a href="https://codeclimate.com/github/fnando/attr_keyring"><img src="https://codeclimate.com/github/fnando/attr_keyring/badges/gpa.svg" alt="Code Climate"></a>
+  <a href="https://codeclimate.com/github/fnando/attr_keyring/coverage"><img src="https://codeclimate.com/github/fnando/attr_keyring/badges/coverage.svg" alt="Test Coverage"></a>
+  <a href="https://rubygems.org/gems/attr_keyring"><img src="https://img.shields.io/gem/v/attr_keyring.svg" alt="Gem"></a>
+  <a href="https://rubygems.org/gems/attr_keyring"><img src="https://img.shields.io/gem/dt/attr_keyring.svg" alt="Gem"></a>
+</p>
 
 N.B.: attr_keyring is *not* for encrypting passwords--for that, you should use something like [bcrypt](https://github.com/codahale/bcrypt-ruby). It's meant for encrypting sensitive data you will need to access in plain text (e.g. storing OAuth token from users). Passwords do not fall in that category.
 
@@ -136,6 +136,10 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/fnando
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+
+## Icon
+
+Icon made by [Icongeek26](https://www.flaticon.com/authors/icongeek26) from [Flaticon](https://www.flaticon.com/) is licensed by Creative Commons BY 3.0.
 
 ## Code of Conduct
 
