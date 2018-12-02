@@ -46,8 +46,8 @@ Keys are managed through a keyring--a short JSON document describing your encryp
 
 ```json
 {
-  "1": "PV8+EHgJlHfsVVVstJHgEo+3OCSn4iJDzqJs55U650Q=",
-  "2": "0HyJ15am4haRsCyiFCxDdlKwl3G5yPNKTUbadpaIfPI="
+  "1": "QSXyoiRDPoJmfkJUZ4hJeQ==",
+  "2": "r6AfOeilPDJomFsiOXLdfQ=="
 }
 ```
 
@@ -59,8 +59,8 @@ If you're using Rails 5.2+, you can use credentials to define your keyring. Your
 
 ```yaml
 user_keyring:
-  1: "PV8+EHgJlHfsVVVstJHgEo+3OCSn4iJDzqJs55U650Q="
-  2: "0HyJ15am4haRsCyiFCxDdlKwl3G5yPNKTUbadpaIfPI="
+  1: "QSXyoiRDPoJmfkJUZ4hJeQ=="
+  2: "r6AfOeilPDJomFsiOXLdfQ=="
 ```
 
 Then you can setup your model by using `attr_keyring Rails.application.credentials.user_keyring`.
@@ -70,7 +70,37 @@ Other possibilities (e.g. the keyring file is provided by configuration manageme
 - `attr_keyring YAML.load_file(keyring_file)`
 - `attr_keyring JSON.parse(File.read(keyring_file))`.
 
-### Model Setup
+### Model Configuration
+
+#### Migration
+
+1. You'll need a column to track the key that was used for encryption; by default it's called `keyring_id`.
+2. Every encrypted columns must follow the name `encrypted_<column name>`.
+3. Optionally, you can also have a `<column name>_digest` to help with searching (see Lookup section below).
+
+The following example shows how to create a column `twitter_oauth_token` without the digest, and another one called `social_security_number` with the digest column.
+
+```ruby
+class CreateUsers < ActiveRecord::Migration[5.2]
+  def change
+    create_table :users do |t|
+      t.citext :email, null: false
+      t.timestamps
+
+      # The following columns are used for encryption.
+      t.binary :encrypted_twitter_oauth_token
+      t.binary :encrypted_social_security_number
+      t.text :social_security_number_digest
+      t.integer :keyring_id
+    end
+
+    add_index :users, :email, unique: true
+    add_index :users, :social_security_number_digest, unique: true
+  end
+end
+```
+
+#### ActiveRecord
 
 ```ruby
 class ApplicationRecord < ActiveRecord::Base
@@ -80,12 +110,31 @@ class ApplicationRecord < ActiveRecord::Base
 end
 
 class User < ApplicationRecord
-  attr_keyring ENV["APP_KEYRING"]
-  attr_encrypt :twitter_oauth_token
+  attr_keyring ENV["USER_KEYRING"]
+  attr_encrypt :twitter_oauth_token, :social_security_number
 end
 ```
 
 The code above will encrypt your columns with the current key. If you're updating a record, then the column will be migrated to the latest key available.
+
+You can use the model as you would normally do.
+
+```ruby
+user = User.create(
+  email: "john@example.com",
+  twitter_oauth_token: "TOKEN",
+  social_security_number: "SSN"
+)
+
+user.twitter_oauth_token
+#=> TOKEN
+
+user.keyring_id
+#=> 1
+
+user.encrypted_twitter_oauth_token
+#=> "\xF0\xFD\xE3\x98\x98\xBBBp\xCCV45\x17\xA8\xF2r\x99\xC8W\xB2i\xD0;\xC2>7[\xF0R\xAC\x00s\x8F\x82QW{\x0F\x01\x88\x86\x03w\x0E\xCBJ\xC6q"
+```
 
 ### Lookup
 
@@ -97,7 +146,7 @@ User.where(twitter_oauth_token: "241F596D-79FF-4C08-921A-A19E533B4F52")
 
 is trivial with plain text fields, but impossible with the model defined as above.
 
-If add a column `<attribute>_digest`, a SHA256 value will be saved, allowing you to lookup by that value instead.
+If add a column `<attribute>_digest` exists, then a SHA256 digest from the value will be saved. This will allow you to lookup by that value instead and add unique indexes.
 
 ```ruby
 User.where(twitter_oauth_token_digest: Digest::SHA256.hexdigest("241F596D-79FF-4C08-921A-A19E533B4F52"))
@@ -110,12 +159,11 @@ Because attr_keyring uses a keyring, with access to multiple keys at once, key r
 To check if an existing key with id `123` is still in use, run:
 
 ```ruby
+# For a large dataset, you may want to index the `keyring_id` column.
 User.where(keyring_id: 123).empty?
 ```
 
-For a large dataset, you may want to index the `keyring_id` column.
-
-You may not want wait for records to be updated (e.g. key leaking). In that case, you can manually run something like the following:
+You may not want to wait for records to be updated (e.g. key leaking). In that case, you can rollout a key rotation:
 
 ```ruby
 User.where(keyring_id: 1234).find_each do |user|
@@ -143,4 +191,4 @@ Icon made by [Icongeek26](https://www.flaticon.com/authors/icongeek26) from [Fla
 
 ## Code of Conduct
 
-Everyone interacting in the AttrKeyring project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/fnando/attr_keyring/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the attr_keyring project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/fnando/attr_keyring/blob/master/CODE_OF_CONDUCT.md).
