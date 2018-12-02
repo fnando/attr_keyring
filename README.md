@@ -53,7 +53,22 @@ Keys are managed through a keyring--a short JSON document describing your encryp
 
 The `id` is used to track which key encrypted which piece of data; a key with a larger id is assumed to be newer. The value is the actual bytes of the encryption key.
 
-You can dynamically load
+#### Dynamically loading keyring
+
+If you're using Rails 5.2+, you can use credentials to define your keyring. Your `credentials.yml` must be define like the following:
+
+```yaml
+user_keyring:
+  1: "PV8+EHgJlHfsVVVstJHgEo+3OCSn4iJDzqJs55U650Q="
+  2: "0HyJ15am4haRsCyiFCxDdlKwl3G5yPNKTUbadpaIfPI="
+```
+
+Then you can setup your model by using `attr_keyring Rails.application.credentials.user_keyring`.
+
+Other possibilities (e.g. the keyring file is provided by configuration management):
+
+- `attr_keyring YAML.load_file(keyring_file)`
+- `attr_keyring JSON.parse(File.read(keyring_file))`.
 
 ### Model Setup
 
