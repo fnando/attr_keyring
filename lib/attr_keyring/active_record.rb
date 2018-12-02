@@ -16,23 +16,42 @@ module AttrKeyring
 
       def define_attr_encrypt_writer(attribute)
         define_method("#{attribute}=") do |value|
-          keyring_id = public_send(keyring_column_name)
+          return attr_reset_column(attribute) if value.nil?
+
+          stored_keyring_id = public_send(keyring_column_name)
+          keyring_id = stored_keyring_id || keyring.current_key&.id
           encrypted_value = keyring.encrypt(value, keyring_id)
 
+          public_send("#{keyring_column_name}=", keyring_id) unless stored_keyring_id
           public_send("encrypted_#{attribute}=", encrypted_value)
-          public_send("#{keyring_column_name}=", keyring_id || keyring.current_key.id) unless keyring_id
+          attr_encrypt_digest(attribute, value)
         end
       end
 
       def define_attr_encrypt_reader(attribute)
         define_method(attribute) do
+          encrypted_value = public_send("encrypted_#{attribute}")
+
+          return unless encrypted_value
+
           keyring_id = public_send(keyring_column_name)
-          keyring.decrypt(public_send("encrypted_#{attribute}"), keyring_id)
+          keyring.decrypt(encrypted_value, keyring_id)
         end
       end
     end
 
     module InstanceMethods
+      private def attr_reset_column(attribute)
+        public_send("encrypted_#{attribute}=", nil)
+        public_send("#{attribute}_digest=", nil)
+        nil
+      end
+
+      private def attr_encrypt_digest(attribute, value)
+        digest_column = "#{attribute}_digest"
+        public_send("#{digest_column}=", Digest::SHA256.hexdigest(value)) if respond_to?(digest_column)
+      end
+
       private def migrate_to_latest_encryption_key
         keyring_id = keyring.current_key.id
 
@@ -41,9 +60,7 @@ module AttrKeyring
           encrypted_value = keyring.encrypt(value, keyring_id)
 
           public_send("encrypted_#{attribute}=", encrypted_value)
-
-          digest_column = "#{attribute}_digest"
-          public_send("#{digest_column}=", Digest::SHA256.hexdigest(value)) if respond_to?(digest_column)
+          attr_encrypt_digest(attribute, value)
         end
 
         public_send("#{keyring_column_name}=", keyring_id)

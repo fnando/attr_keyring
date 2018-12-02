@@ -74,6 +74,48 @@ class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_equal "859601deb772672b933ef30d66609610c928bcf116951a52f4b8698f34c1fc80", user.secret_digest
   end
 
+  test "assigns digest even without saving" do
+    model_class = create_model do
+      attr_keyring "0" => SecureRandom.bytes(16)
+      attr_encrypt :secret
+    end
+
+    user = model_class.new(secret: "secret")
+
+    assert_equal "2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b", user.secret_digest
+  end
+
+  test "assigns nil values" do
+    model_class = create_model do
+      attr_keyring "0" => SecureRandom.bytes(16)
+      attr_encrypt :secret
+    end
+
+    user = model_class.new(secret: nil)
+
+    assert_nil user.secret
+    assert_nil user.encrypted_secret
+    assert_nil user.secret_digest
+  end
+
+  test "assigns nil after saving encrypted value" do
+    model_class = create_model do
+      attr_keyring "0" => SecureRandom.bytes(16)
+      attr_encrypt :secret
+    end
+
+    user = model_class.create(secret: "secret")
+    user.reload
+
+    assert_equal "secret", user.secret
+
+    user.secret = nil
+
+    assert_nil user.secret
+    assert_nil user.encrypted_secret
+    assert_nil user.secret_digest
+  end
+
   test "encrypts with newer key when assigning new value" do
     model_class = create_model do
       attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
@@ -151,6 +193,20 @@ class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
     assert_equal "new secret", user.secret
     assert_equal "other secret", user.other_secret
+    assert_equal 1, user.keyring_id
+  end
+
+  test "encrypts column after rotating key" do
+    model_class = create_model do
+      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg==",
+                   "1" => "5nAp51BMNKNh2zECMFEQ0Q=="
+      attr_encrypt :secret
+    end
+
+    user = model_class.create(secret: "secret")
+    user.reload
+
+    assert_equal "secret", user.secret
     assert_equal 1, user.keyring_id
   end
 
