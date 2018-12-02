@@ -189,6 +189,62 @@ class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_equal 1, user.keyring_id
   end
 
+  test "encrypts value using raw bytes key" do
+    model_class = create_model do
+      attr_keyring "0" => SecureRandom.bytes(16)
+      attr_encrypt :secret
+    end
+
+    user = model_class.create(secret: "secret")
+    user.reload
+
+    assert_equal "secret", user.secret
+    assert_equal 0, user.keyring_id
+  end
+
+  test "encrypts value base64 encoded key" do
+    model_class = create_model do
+      attr_keyring "0" => Base64.encode64(SecureRandom.bytes(16))
+      attr_encrypt :secret
+    end
+
+    user = model_class.create(secret: "secret")
+    user.reload
+
+    assert_equal "secret", user.secret
+    assert_equal 0, user.keyring_id
+  end
+
+  test "encrypts value base64 strict encoded key" do
+    model_class = create_model do
+      attr_keyring "0" => Base64.strict_encode64(SecureRandom.bytes(16))
+      attr_encrypt :secret
+    end
+
+    user = model_class.create(secret: "secret")
+    user.reload
+
+    assert_equal "secret", user.secret
+    assert_equal 0, user.keyring_id
+  end
+
+  test "raises exception with invalid key size" do
+    model_class = create_model do
+      attr_keyring Hash.new
+    end
+
+    assert_raises(AttrKeyring::InvalidSecret, "Secret must be 16 bytes, instead got 32") do
+      model_class.keyring["0"] = Base64.strict_encode64(SecureRandom.bytes(32))
+    end
+  end
+
+  test "prevents key leaking" do
+    key = AttrKeyring::Key.new(1, SecureRandom.bytes(16))
+
+    assert_equal "#<AttrKeyring::Key id=1>", key.to_s
+    assert_equal "#<AttrKeyring::Key id=1>", key.inspect
+  end
+
   def create_model(&block)
     Class.new(ActiveRecord::Base) do
       self.table_name = :users
