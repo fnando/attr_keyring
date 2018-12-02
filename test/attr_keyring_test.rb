@@ -294,8 +294,22 @@ class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     end
   end
 
+  test "encrypts using AES-256-CBC" do
+    model_class = create_model do
+      keyring_store = {"0" => SecureRandom.bytes(32)}
+      attr_keyring keyring_store, encryptor: AttrKeyring::Encryptor::AES256CBC
+      attr_encrypt :secret
+    end
+
+    user = model_class.create(secret: "secret")
+    user.reload
+
+    assert_equal "secret", user.secret
+    assert_equal 0, user.keyring_id
+  end
+
   test "prevents key leaking" do
-    key = AttrKeyring::Key.new(1, SecureRandom.bytes(16))
+    key = AttrKeyring::Key.new(1, SecureRandom.bytes(16), 16)
 
     assert_equal "#<AttrKeyring::Key id=1>", key.to_s
     assert_equal "#<AttrKeyring::Key id=1>", key.inspect

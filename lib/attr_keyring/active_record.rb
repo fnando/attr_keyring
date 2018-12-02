@@ -1,8 +1,8 @@
 module AttrKeyring
   module ActiveRecord
     module ClassMethods
-      def attr_keyring(keyring)
-        self.keyring = Keyring.new(keyring)
+      def attr_keyring(keyring, encryptor: Encryptor::AES128CBC)
+        self.keyring = Keyring.new(keyring, encryptor)
       end
 
       def attr_encrypt(*attributes)
