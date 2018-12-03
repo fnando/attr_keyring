@@ -121,6 +121,12 @@ To generate keys, use `bs=32` instead.
 $ dd if=/dev/urandom bs=32 count=1 2>/dev/null | openssl base64
 ```
 
+#### About the encrypted message
+
+Initialization vectors (IV) should be unpredictable and unique; ideally, they will be cryptographically random. They do not have to be secret: IVs are typically just added to ciphertext messages unencrypted. It may sound contradictory that something has to be unpredictable and unique, but does not have to be secret; it is important to remember that an attacker must not be able to predict ahead of time what a given IV will be.
+
+With that in mind, attr_keyring uses `unencrypted iv + encrypted message` as the value of `encrypted_<column>`. If you're planning to migrate from other encryption mechanisms or read encrypted values from the database without using attr_keyring, make sure you account for this. The IV length can be retrieved by `OpenSSL::Cipher#iv_len`, e.g. `OpenSSL::Cipher.new("AES-128-CBC").iv_len`.
+
 ### Keyring
 
 Keys are managed through a keyring--a short JSON document describing your encryption keys. The keyring must be a JSON object mapping numeric ids of the keys to the key values. A keyring must have at least one key. For example:
