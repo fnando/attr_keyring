@@ -30,46 +30,6 @@ Or install it yourself as:
 
 ## Usage
 
-### Encryption
-
-The key should be 16 bytes of random data, base64-encoded. A simple way to generate that is:
-
-```console
-$ dd if=/dev/urandom bs=16 count=1 2>/dev/null | openssl base64
-```
-
-Include the result of this in the `value` section of the key description in the keyring.
-
-### Keyring
-
-Keys are managed through a keyring--a short JSON document describing your encryption keys. The keyring must be a JSON object mapping numeric ids of the keys to the key values. A keyring must have at least one key. For example:
-
-```json
-{
-  "1": "QSXyoiRDPoJmfkJUZ4hJeQ==",
-  "2": "r6AfOeilPDJomFsiOXLdfQ=="
-}
-```
-
-The `id` is used to track which key encrypted which piece of data; a key with a larger id is assumed to be newer. The value is the actual bytes of the encryption key.
-
-#### Dynamically loading keyring
-
-If you're using Rails 5.2+, you can use credentials to define your keyring. Your `credentials.yml` must be define like the following:
-
-```yaml
-user_keyring:
-  1: "QSXyoiRDPoJmfkJUZ4hJeQ=="
-  2: "r6AfOeilPDJomFsiOXLdfQ=="
-```
-
-Then you can setup your model by using `attr_keyring Rails.application.credentials.user_keyring`.
-
-Other possibilities (e.g. the keyring file is provided by configuration management):
-
-- `attr_keyring YAML.load_file(keyring_file)`
-- `attr_keyring JSON.parse(File.read(keyring_file))`.
-
 ### Model Configuration
 
 #### Migration
@@ -135,6 +95,61 @@ user.keyring_id
 user.encrypted_twitter_oauth_token
 #=> "\xF0\xFD\xE3\x98\x98\xBBBp\xCCV45\x17\xA8\xF2r\x99\xC8W\xB2i\xD0;\xC2>7[\xF0R\xAC\x00s\x8F\x82QW{\x0F\x01\x88\x86\x03w\x0E\xCBJ\xC6q"
 ```
+
+### Encryption
+
+By default, AES-128-CBC is the algorithm used for encryption. This algorithm uses 16 bytes keys. Using 16-bytes of random data base64-encoded is the recommended way. You can easily generate keys by using the following command:
+
+```console
+$ dd if=/dev/urandom bs=16 count=1 2>/dev/null | openssl base64
+```
+
+Include the result of this in the `value` section of the key description in the keyring.
+
+You can also use AES-256-CBC, which uses 32-bytes keys. To specify the encryptor when defining the keyring, use `encryptor: AttrKeyring::Encryptor::AES256CBC`.
+
+```ruby
+class User < ApplicationRecord
+  attr_keyring ENV["USER_KEYRING"],
+               encryptor: AttrKeyring::Encryptor::AES256CBC
+end
+```
+
+To generate keys, use `bs=32` instead.
+
+```console
+$ dd if=/dev/urandom bs=32 count=1 2>/dev/null | openssl base64
+```
+
+### Keyring
+
+Keys are managed through a keyring--a short JSON document describing your encryption keys. The keyring must be a JSON object mapping numeric ids of the keys to the key values. A keyring must have at least one key. For example:
+
+```json
+{
+  "1": "QSXyoiRDPoJmfkJUZ4hJeQ==",
+  "2": "r6AfOeilPDJomFsiOXLdfQ=="
+}
+```
+
+The `id` is used to track which key encrypted which piece of data; a key with a larger id is assumed to be newer. The value is the actual bytes of the encryption key.
+
+#### Dynamically loading keyring
+
+If you're using Rails 5.2+, you can use credentials to define your keyring. Your `credentials.yml` must be define like the following:
+
+```yaml
+user_keyring:
+  1: "QSXyoiRDPoJmfkJUZ4hJeQ=="
+  2: "r6AfOeilPDJomFsiOXLdfQ=="
+```
+
+Then you can setup your model by using `attr_keyring Rails.application.credentials.user_keyring`.
+
+Other possibilities (e.g. the keyring file is provided by configuration management):
+
+- `attr_keyring YAML.load_file(keyring_file)`
+- `attr_keyring JSON.parse(File.read(keyring_file))`.
 
 ### Lookup
 

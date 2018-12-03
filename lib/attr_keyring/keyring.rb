@@ -1,10 +1,9 @@
 module AttrKeyring
   class Keyring
-    CIPHER_NAME = "AES-128-CBC".freeze
-
-    def initialize(keyring)
+    def initialize(keyring, encryptor = Encryptor::AES128CBC)
+      @encryptor = encryptor
       @keyring = keyring.map do |id, value|
-        Key.new(id, value)
+        Key.new(id, value, @encryptor.key_size)
       end
     end
 
@@ -20,7 +19,7 @@ module AttrKeyring
     end
 
     def []=(id, value)
-      @keyring << Key.new(id, value)
+      @keyring << Key.new(id, value, @encryptor.key_size)
     end
 
     def clear
@@ -28,24 +27,11 @@ module AttrKeyring
     end
 
     def encrypt(message, keyring_id = current_key.id)
-      cipher = OpenSSL::Cipher.new(CIPHER_NAME)
-      cipher.encrypt
-      iv = cipher.random_iv
-      cipher.iv  = iv
-      cipher.key = self[keyring_id].value
-      iv + cipher.update(message) + cipher.final
+      @encryptor.encrypt(self[keyring_id].value, message)
     end
 
-    def decrypt(secret, keyring_id)
-      decipher = OpenSSL::Cipher.new(CIPHER_NAME)
-      decipher.decrypt
-
-      iv = secret[0...decipher.iv_len]
-      encrypted = secret[decipher.iv_len..-1]
-
-      decipher.iv = iv
-      decipher.key = self[keyring_id].value
-      decipher.update(encrypted) + decipher.final
+    def decrypt(message, keyring_id)
+      @encryptor.decrypt(self[keyring_id].value, message)
     end
   end
 end
