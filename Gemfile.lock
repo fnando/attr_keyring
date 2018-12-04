@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    attr_keyring (0.2.0)
+    attr_keyring (0.2.1)
       activerecord
 
 GEM
