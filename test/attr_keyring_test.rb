@@ -36,7 +36,7 @@ class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
     user = model_class.create(secret: "secret")
 
-    assert_equal "2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b", user.secret_digest
+    assert_equal "e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4", user.secret_digest
   end
 
   test "updates encrypted value" do
@@ -65,13 +65,13 @@ class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
     user = model_class.create(secret: "secret")
 
-    assert_equal "2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b", user.secret_digest
+    assert_equal "e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4", user.secret_digest
 
     user.secret = "new secret"
     user.save!
     user.reload
 
-    assert_equal "859601deb772672b933ef30d66609610c928bcf116951a52f4b8698f34c1fc80", user.secret_digest
+    assert_equal "950a376e47f2f00331f42dd65c7fc7eb39265ba2", user.secret_digest
   end
 
   test "assigns digest even without saving" do
@@ -82,7 +82,7 @@ class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
     user = model_class.new(secret: "secret")
 
-    assert_equal "2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b", user.secret_digest
+    assert_equal "e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4", user.secret_digest
   end
 
   test "assigns nil values" do

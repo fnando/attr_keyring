@@ -1,6 +1,7 @@
 module AttrKeyring
   require "active_record"
   require "openssl"
+  require "digest/sha1"
 
   require "attr_keyring/version"
   require "attr_keyring/active_record"

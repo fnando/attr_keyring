@@ -49,7 +49,7 @@ module AttrKeyring
 
       private def attr_encrypt_digest(attribute, value)
         digest_column = "#{attribute}_digest"
-        public_send("#{digest_column}=", Digest::SHA256.hexdigest(value)) if respond_to?(digest_column)
+        public_send("#{digest_column}=", Digest::SHA1.hexdigest(value)) if respond_to?(digest_column)
       end
 
       private def migrate_to_latest_encryption_key

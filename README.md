@@ -167,10 +167,10 @@ User.where(twitter_oauth_token: "241F596D-79FF-4C08-921A-A19E533B4F52")
 
 is trivial with plain text fields, but impossible with the model defined as above.
 
-If add a column `<attribute>_digest` exists, then a SHA256 digest from the value will be saved. This will allow you to lookup by that value instead and add unique indexes.
+If add a column `<attribute>_digest` exists, then a SHA1 digest from the value will be saved. This will allow you to lookup by that value instead and add unique indexes.
 
 ```ruby
-User.where(twitter_oauth_token_digest: Digest::SHA256.hexdigest("241F596D-79FF-4C08-921A-A19E533B4F52"))
+User.where(twitter_oauth_token_digest: Digest::SHA1.hexdigest("241F596D-79FF-4C08-921A-A19E533B4F52"))
 ```
 
 ### Key Rotation
