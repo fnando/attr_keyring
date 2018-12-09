@@ -28,6 +28,19 @@ class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     refute_equal user.encrypted_secret, user.secret
   end
 
+  test "handles nil values during encryption" do
+    model_class = create_model do
+      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_encrypt :secret, :other_secret
+    end
+
+    user = model_class.create(secret: "secret", other_secret: nil)
+    user.reload
+
+    assert_equal "secret", user.secret
+    assert_nil user.other_secret
+  end
+
   test "encodes encrypted value" do
     model_class = create_model do
       attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="

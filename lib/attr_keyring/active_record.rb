@@ -52,7 +52,7 @@ module AttrKeyring
     module InstanceMethods
       private def attr_reset_column(attribute)
         public_send("encrypted_#{attribute}=", nil)
-        public_send("#{attribute}_digest=", nil)
+        public_send("#{attribute}_digest=", nil) if respond_to?("#{attribute}_digest=")
         nil
       end
 
@@ -66,6 +66,8 @@ module AttrKeyring
 
         self.class.keyring_attrs.each do |attribute, options|
           value = public_send(attribute)
+          next if value.nil?
+
           encrypted_value = self.class.keyring.encrypt(value, keyring_id)
           encrypted_value = Base64.strict_encode64(encrypted_value) if options[:encode]
 
