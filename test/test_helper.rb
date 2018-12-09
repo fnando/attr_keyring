@@ -15,4 +15,9 @@ ActiveRecord::Schema.define(version: 0) do
     t.binary :encrypted_other_secret
     t.bigint :keyring_id, null: false
   end
+
+  create_table :customers do |t|
+    t.binary :encrypted_super_secret
+    t.bigint :keyring_id, null: false
+  end
 end

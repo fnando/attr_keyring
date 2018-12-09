@@ -19,9 +19,21 @@ module AttrKeyring
       extend AttrKeyring::ActiveRecord::ClassMethods
       include AttrKeyring::ActiveRecord::InstanceMethods
 
-      cattr_accessor :keyring, default: Keyring.new({})
+      class << self
+        attr_accessor :keyring_attrs
+        attr_accessor :keyring
+
+        def inherited(subclass)
+          super
+
+          subclass.keyring_attrs = []
+          subclass.keyring = Keyring.new({})
+        end
+      end
+
       cattr_accessor :keyring_column_name, default: "keyring_id"
-      cattr_accessor :keyring_attrs, default: []
+      self.keyring_attrs = []
+      self.keyring = Keyring.new({})
 
       before_save :migrate_to_latest_encryption_key
     end

@@ -28,6 +28,36 @@ class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     refute_equal user.encrypted_secret, user.secret
   end
 
+  test "deals with abstract classes and inheriting" do
+    abstract_class = Class.new(ActiveRecord::Base) do
+      self.abstract_class = true
+      include AttrKeyring
+    end
+
+    user_class = Class.new(abstract_class) do
+      self.table_name = :users
+
+      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_encrypt :secret
+    end
+
+    customer_class = Class.new(abstract_class) do
+      self.table_name = :customers
+
+      attr_keyring "0" => "4OW/P/3eCTeD6UGfiMXtOQ=="
+      attr_encrypt :super_secret
+    end
+
+    user = user_class.create(secret: "secret!")
+    customer = customer_class.create(super_secret: "super secret!")
+
+    user.reload
+    customer.reload
+
+    assert_equal "secret!", user.secret
+    assert_equal "super secret!", customer.super_secret
+  end
+
   test "saves digest value" do
     model_class = create_model do
       attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="

@@ -6,6 +6,7 @@ module AttrKeyring
       end
 
       def attr_encrypt(*attributes)
+        self.keyring_attrs ||= []
         keyring_attrs.push(*attributes)
 
         attributes.each do |attribute|
@@ -19,8 +20,8 @@ module AttrKeyring
           return attr_reset_column(attribute) if value.nil?
 
           stored_keyring_id = public_send(keyring_column_name)
-          keyring_id = stored_keyring_id || keyring.current_key&.id
-          encrypted_value = keyring.encrypt(value, keyring_id)
+          keyring_id = stored_keyring_id || self.class.keyring.current_key&.id
+          encrypted_value = self.class.keyring.encrypt(value, keyring_id)
 
           public_send("#{keyring_column_name}=", keyring_id) unless stored_keyring_id
           public_send("encrypted_#{attribute}=", encrypted_value)
@@ -35,7 +36,7 @@ module AttrKeyring
           return unless encrypted_value
 
           keyring_id = public_send(keyring_column_name)
-          keyring.decrypt(encrypted_value, keyring_id)
+          self.class.keyring.decrypt(encrypted_value, keyring_id)
         end
       end
     end
@@ -53,11 +54,11 @@ module AttrKeyring
       end
 
       private def migrate_to_latest_encryption_key
-        keyring_id = keyring.current_key.id
+        keyring_id = self.class.keyring.current_key.id
 
-        keyring_attrs.each do |attribute|
+        self.class.keyring_attrs.each do |attribute|
           value = public_send(attribute)
-          encrypted_value = keyring.encrypt(value, keyring_id)
+          encrypted_value = self.class.keyring.encrypt(value, keyring_id)
 
           public_send("encrypted_#{attribute}=", encrypted_value)
           attr_encrypt_digest(attribute, value)
