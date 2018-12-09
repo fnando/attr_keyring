@@ -26,13 +26,13 @@ module AttrKeyring
         def inherited(subclass)
           super
 
-          subclass.keyring_attrs = []
+          subclass.keyring_attrs = {}
           subclass.keyring = Keyring.new({})
         end
       end
 
       cattr_accessor :keyring_column_name, default: "keyring_id"
-      self.keyring_attrs = []
+      self.keyring_attrs = {}
       self.keyring = Keyring.new({})
 
       before_save :migrate_to_latest_encryption_key

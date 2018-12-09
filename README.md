@@ -96,6 +96,17 @@ user.encrypted_twitter_oauth_token
 #=> "\xF0\xFD\xE3\x98\x98\xBBBp\xCCV45\x17\xA8\xF2r\x99\xC8W\xB2i\xD0;\xC2>7[\xF0R\xAC\x00s\x8F\x82QW{\x0F\x01\x88\x86\x03w\x0E\xCBJ\xC6q"
 ```
 
+You may want to store a Base64 version instead of binary data (e.g. `jsonb` column with `store_accessor`). In this case, you may specify the option `encode: true`.
+
+```ruby
+class User < ApplicationRecord
+  store_accessor :meta, :twitter_oauth_token
+
+  attr_keyring ENV["USER_KEYRING"]
+  attr_encrypt :twitter_oauth_token, encode: true
+end
+```
+
 ### Encryption
 
 By default, AES-128-CBC is the algorithm used for encryption. This algorithm uses 16 bytes keys. Using 16-bytes of random data base64-encoded is the recommended way. You can easily generate keys by using the following command:

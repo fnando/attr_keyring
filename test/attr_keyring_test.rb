@@ -28,6 +28,17 @@ class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     refute_equal user.encrypted_secret, user.secret
   end
 
+  test "encodes encrypted value" do
+    model_class = create_model do
+      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_encrypt :secret, encode: true
+    end
+
+    user = model_class.create(secret: "secret")
+
+    assert_equal "ASCII-8BIT", Base64.strict_decode64(user.encrypted_secret).encoding.name
+  end
+
   test "deals with abstract classes and inheriting" do
     abstract_class = Class.new(ActiveRecord::Base) do
       self.abstract_class = true
