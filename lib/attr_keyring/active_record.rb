@@ -6,8 +6,8 @@ module AttrKeyring
       end
 
       def attr_encrypt(*attributes)
-        self.keyring_attrs ||= []
-        keyring_attrs.push(*attributes)
+        self.encrypted_attributes ||= []
+        encrypted_attributes.push(*attributes)
 
         attributes.each do |attribute|
           define_attr_encrypt_writer(attribute)
@@ -59,7 +59,7 @@ module AttrKeyring
       private def migrate_to_latest_encryption_key
         keyring_id = self.class.keyring.current_key.id
 
-        self.class.keyring_attrs.each do |attribute|
+        self.class.encrypted_attributes.each do |attribute|
           value = public_send(attribute)
           next if value.nil?
 
