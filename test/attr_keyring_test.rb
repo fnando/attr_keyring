@@ -22,6 +22,7 @@ class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     end
 
     user = model_class.create(secret: "secret")
+    user.reload
 
     assert_equal "secret", user.secret
     refute_nil user.encrypted_secret
@@ -239,7 +240,7 @@ class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_equal 1, user.keyring_id
   end
 
-  test "encrypts column after rotating key" do
+  test "encrypts column with most recent key" do
     model_class = create_model do
       attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg==",
                    "1" => "5nAp51BMNKNh2zECMFEQ0Q=="

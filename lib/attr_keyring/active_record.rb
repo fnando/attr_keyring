@@ -22,7 +22,6 @@ module AttrKeyring
           stored_keyring_id = public_send(keyring_column_name)
           keyring_id = stored_keyring_id || self.class.keyring.current_key&.id
           encrypted_value = self.class.keyring.encrypt(value, keyring_id)
-          encrypted_value = Base64.strict_encode64(encrypted_value)
 
           public_send("#{keyring_column_name}=", keyring_id) unless stored_keyring_id
           public_send("encrypted_#{attribute}=", encrypted_value)
@@ -36,7 +35,6 @@ module AttrKeyring
 
           return unless encrypted_value
 
-          encrypted_value = Base64.strict_decode64(encrypted_value)
           keyring_id = public_send(keyring_column_name)
           value = self.class.keyring.decrypt(encrypted_value, keyring_id)
           value
@@ -64,7 +62,6 @@ module AttrKeyring
           next if value.nil?
 
           encrypted_value = self.class.keyring.encrypt(value, keyring_id)
-          encrypted_value = Base64.strict_encode64(encrypted_value)
 
           public_send("encrypted_#{attribute}=", encrypted_value)
           attr_encrypt_digest(attribute, value)
