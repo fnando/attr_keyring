@@ -6,9 +6,12 @@ require "attr_keyring"
 require "minitest/utils"
 require "minitest/autorun"
 
-ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
+ActiveRecord::Base.establish_connection("postgres:///test")
 
 ActiveRecord::Schema.define(version: 0) do
+  drop_table :users if table_exists?(:users)
+  drop_table :customers if table_exists?(:customers)
+
   create_table :users do |t|
     t.binary :encrypted_secret
     t.text   :secret_digest

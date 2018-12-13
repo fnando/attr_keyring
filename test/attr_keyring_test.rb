@@ -2,7 +2,7 @@ require "test_helper"
 
 class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
   setup do
-    ActiveRecord::Base.connection.execute "delete from users"
+    ActiveRecord::Base.connection.execute "truncate users"
   end
 
   test "raises exception when default keyring is used" do
