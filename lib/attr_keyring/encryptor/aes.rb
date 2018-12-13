@@ -15,14 +15,19 @@ module AttrKeyring
         iv = cipher.random_iv
         cipher.iv  = iv
         cipher.key = key
-        iv + cipher.update(message) + cipher.final
+        encrypted = cipher.update(message) + cipher.final
+
+        Base64.strict_encode64("#{iv}#{encrypted}")
       end
 
       def self.decrypt(key, message)
         cipher = build_cipher
         cipher.decrypt
+
+        message = Base64.strict_decode64(message)
         iv = message[0...cipher.iv_len]
         encrypted = message[cipher.iv_len..-1]
+
         cipher.iv = iv
         cipher.key = key
         cipher.update(encrypted) + cipher.final

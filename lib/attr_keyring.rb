@@ -9,6 +9,7 @@ module AttrKeyring
   require "attr_keyring/key"
   require "attr_keyring/encryptor/aes"
   require "attr_keyring/encryptor/aes_128_cbc"
+  require "attr_keyring/encryptor/aes_192_cbc"
   require "attr_keyring/encryptor/aes_256_cbc"
 
   UnknownKey = Class.new(StandardError)
