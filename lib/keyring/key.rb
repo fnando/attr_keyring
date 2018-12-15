@@ -1,4 +1,4 @@
-module AttrKeyring
+module Keyring
   class Key
     attr_reader :id, :value
 
