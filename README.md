@@ -203,6 +203,38 @@ User.where(keyring_id: 1234).find_each do |user|
 end
 ```
 
+### What if I don't use ActiveRecord
+
+If you use [Sequel](https://) make sure you check <https://github.com/uhoh-itsmaciek/attr_vault>, as it was the main inspiration for `attr_keyring`.
+
+But you can also leverage the encryption mechanism of `attr_keyring` totally decoupled from ActiveRecord. First, make sure you load `keyring` instead. Then you can create a keyring to encrypt/decrypt strings, without even touching the database.
+
+```ruby
+require "keyring"
+
+keyring = Keyring.new("1" => "QSXyoiRDPoJmfkJUZ4hJeQ==")
+
+encrypted, keyring_id, digest = keyring.encrypt("super secret")
+
+puts encrypted
+#=> encrypted: +mOWmIWKMV01nCm076OBnzgPGhWAZqNs8Etaad/0s3I=
+
+puts keyring_id
+#=> 1
+
+puts digest
+#=> e24fe0dea7f9abe8cbb192702578715079689a3e
+
+decrypted = keyring.decrypt(encrypted, keyring_id)
+
+puts decrypted
+#=> super secret
+```
+
+### Exchange data with Ruby
+
+If you use Node.js, you may be interested in <https://github.com/fnando/keyring-node>, which is able to read and write messages using the same format.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

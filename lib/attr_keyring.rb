@@ -1,19 +1,9 @@
 module AttrKeyring
   require "active_record"
-  require "openssl"
-  require "digest/sha1"
 
   require "attr_keyring/version"
   require "attr_keyring/active_record"
-  require "attr_keyring/keyring"
-  require "attr_keyring/key"
-  require "attr_keyring/encryptor/aes"
-  require "attr_keyring/encryptor/aes_128_cbc"
-  require "attr_keyring/encryptor/aes_192_cbc"
-  require "attr_keyring/encryptor/aes_256_cbc"
-
-  UnknownKey = Class.new(StandardError)
-  InvalidSecret = Class.new(StandardError)
+  require "keyring"
 
   def self.included(target)
     target.class_eval do

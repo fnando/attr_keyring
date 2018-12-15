@@ -68,3 +68,6 @@ Style/AccessModifierDeclarations:
 
 Style/Alias:
   EnforcedStyle: prefer_alias_method
+
+Style/TrailingUnderscoreVariable:
+  Enabled: false
