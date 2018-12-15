@@ -205,7 +205,7 @@ end
 
 ### What if I don't use ActiveRecord
 
-If you use [Sequel](https://) make sure you check <https://github.com/uhoh-itsmaciek/attr_vault>, as it was the main inspiration for `attr_keyring`.
+If you use [Sequel](https://sequel.jeremyevans.net) make sure you check <https://github.com/uhoh-itsmaciek/attr_vault>, as it was the main inspiration for `attr_keyring`.
 
 But you can also leverage the encryption mechanism of `attr_keyring` totally decoupled from ActiveRecord. First, make sure you load `keyring` instead. Then you can create a keyring to encrypt/decrypt strings, without even touching the database.
 
