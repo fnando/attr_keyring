@@ -154,6 +154,18 @@ class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_nil user.secret_digest
   end
 
+  test "assigns non-string values" do
+    model_class = create_model do
+      attr_keyring "0" => SecureRandom.bytes(16)
+      attr_encrypt :secret
+    end
+
+    user = model_class.create(secret: 1234)
+    user.reload
+
+    assert_equal "1234", user.secret
+  end
+
   test "assigns nil after saving encrypted value" do
     model_class = create_model do
       attr_keyring "0" => SecureRandom.bytes(16)
@@ -327,6 +339,41 @@ class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
     assert_equal "42", user.secret
     assert_equal 1, user.keyring_id
+  end
+
+  test "encrypts all attributes when setting only one attribute" do
+    model_class = create_model do
+      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_encrypt :secret, :other_secret
+    end
+
+    model_class.create(secret: "42", other_secret: "37")
+    user = model_class.first
+
+    assert_equal "42", user.secret
+    assert_equal 0, user.keyring_id
+
+    model_class.keyring["1"] = "5nAp51BMNKNh2zECMFEQ0Q=="
+
+    user.secret = "24"
+    user.save
+
+    user.reload
+
+    assert_equal "24", user.secret
+    assert_equal "37", user.other_secret
+    assert_equal 1, user.keyring_id
+  end
+
+  test "returns unitialized attributes" do
+    model_class = create_model do
+      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_encrypt :secret
+    end
+
+    user = model_class.new
+
+    assert_nil user.secret
   end
 
   test "encrypts value using raw bytes key" do

@@ -47,6 +47,8 @@ module AttrKeyring
         clear_decrypted_column_cache(attribute)
         return reset_encrypted_column(attribute) unless value
 
+        value = value.to_s
+
         previous_keyring_id = public_send(keyring_column_name)
         encrypted_value, keyring_id, digest = self.class.keyring.encrypt(value, previous_keyring_id)
 
