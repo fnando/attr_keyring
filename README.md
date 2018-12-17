@@ -1,4 +1,4 @@
-![attr_keyring: Simple encryption-at-rest with key rotation support for ActiveRecord.](https://raw.githubusercontent.com/fnando/attr_keyring/master/attr_keyring.png)
+![attr_keyring: Simple encryption-at-rest with key rotation support for Ruby.](https://raw.githubusercontent.com/fnando/attr_keyring/master/attr_keyring.png)
 
 <p align="center">
   <a href="https://travis-ci.org/fnando/attr_keyring"><img src="https://travis-ci.org/fnando/attr_keyring.svg" alt="Travis-CI"></a>
@@ -30,45 +30,42 @@ Or install it yourself as:
 
 ## Usage
 
-### Model Configuration
+### Configuration
 
-#### Migration
+As far as database schema goes:
 
 1. You'll need a column to track the key that was used for encryption; by default it's called `keyring_id`.
 2. Every encrypted columns must follow the name `encrypted_<column name>`.
 3. Optionally, you can also have a `<column name>_digest` to help with searching (see Lookup section below).
 
-The following example shows how to create a column `twitter_oauth_token` without the digest, and another one called `social_security_number` with the digest column.
-
-```ruby
-class CreateUsers < ActiveRecord::Migration[5.2]
-  def change
-    create_table :users do |t|
-      t.citext :email, null: false
-      t.timestamps
-
-      # The following columns are used for encryption.
-      t.binary :encrypted_twitter_oauth_token
-      t.binary :encrypted_social_security_number
-      t.text :social_security_number_digest
-      t.integer :keyring_id
-    end
-
-    add_index :users, :email, unique: true
-    add_index :users, :social_security_number_digest, unique: true
-  end
-end
-```
+As far as model configuration goes, they're pretty similar, as you can see below:
 
 #### ActiveRecord
+
+From Rails 5+, ActiveRecord models now inherit from `ApplicationRecord` instead. This is how you set it up:
 
 ```ruby
 class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
-
-  include AttrKeyring
+  include AttrKeyring.active_record
 end
+```
 
+#### Sequel
+
+Sequel doesn't have an abstract model class (but it could), so you can set up the model class directly like the following:
+
+```ruby
+class User < Sequel::Model
+  include AttrKeyring.sequel
+end
+```
+
+### Defining encrypted attributes
+
+To set up your model, you have to define the keyring (set of encryption keys) and the attributes that will be encrypted. Both ActiveRecord and Sequel have the same API, so the examples below work for both ORMs.
+
+```ruby
 class User < ApplicationRecord
   attr_keyring ENV["USER_KEYRING"]
   attr_encrypt :twitter_oauth_token, :social_security_number
@@ -81,30 +78,17 @@ You can use the model as you would normally do.
 
 ```ruby
 user = User.create(
-  email: "john@example.com",
-  twitter_oauth_token: "TOKEN",
-  social_security_number: "SSN"
+  email: "john@example.com"
 )
 
-user.twitter_oauth_token
-#=> TOKEN
+user.email
+#=> john@example.com
 
 user.keyring_id
 #=> 1
 
-user.encrypted_twitter_oauth_token
-#=> "\xF0\xFD\xE3\x98\x98\xBBBp\xCCV45\x17\xA8\xF2r\x99\xC8W\xB2i\xD0;\xC2>7[\xF0R\xAC\x00s\x8F\x82QW{\x0F\x01\x88\x86\x03w\x0E\xCBJ\xC6q"
-```
-
-You may want to store a Base64 version instead of binary data (e.g. `jsonb` column with `store_accessor`). In this case, you may specify the option `encode: true`.
-
-```ruby
-class User < ApplicationRecord
-  store_accessor :meta, :twitter_oauth_token
-
-  attr_keyring ENV["USER_KEYRING"]
-  attr_encrypt :twitter_oauth_token, encode: true
-end
+user.encrypted_email
+#=> WG8Epo0ABz0Z1X5gX7kttc98w9Ei59B5uXGK36Zin9G0VqbxX3naOWOm4RI6w6Uu
 ```
 
 ### Encryption
@@ -126,11 +110,11 @@ class User < ApplicationRecord
 end
 ```
 
-To generate keys, use `bs=32` instead.
+#### Key size
 
-```console
-$ dd if=/dev/urandom bs=32 count=1 2>/dev/null | openssl base64
-```
+- `aes-128-cbc`: 16 bytes.
+- `aes-192-cbc`: 24 bytes.
+- `aes-256-cbc`: 32 bytes.
 
 #### About the encrypted message
 
@@ -173,15 +157,15 @@ Other possibilities (e.g. the keyring file is provided by configuration manageme
 One tricky aspect of encryption is looking up records by known secret. E.g.,
 
 ```ruby
-User.where(twitter_oauth_token: "241F596D-79FF-4C08-921A-A19E533B4F52")
+User.where(email: "john@example.com")
 ```
 
 is trivial with plain text fields, but impossible with the model defined as above.
 
-If add a column `<attribute>_digest` exists, then a SHA1 digest from the value will be saved. This will allow you to lookup by that value instead and add unique indexes.
+If a column `<attribute>_digest` exists, then a SHA1 digest from the value will be saved. This will allow you to lookup by that value instead and add unique indexes.
 
 ```ruby
-User.where(twitter_oauth_token_digest: Digest::SHA1.hexdigest("241F596D-79FF-4C08-921A-A19E533B4F52"))
+User.where(email: Digest::SHA1.hexdigest("john@example.com"))
 ```
 
 ### Key Rotation
@@ -203,11 +187,9 @@ User.where(keyring_id: 1234).find_each do |user|
 end
 ```
 
-### What if I don't use ActiveRecord
+### What if I don't use ActiveRecord/Sequel?
 
-If you use [Sequel](https://sequel.jeremyevans.net) make sure you check <https://github.com/uhoh-itsmaciek/attr_vault>, as it was the main inspiration for `attr_keyring`.
-
-But you can also leverage the encryption mechanism of `attr_keyring` totally decoupled from ActiveRecord. First, make sure you load `keyring` instead. Then you can create a keyring to encrypt/decrypt strings, without even touching the database.
+You can also leverage the encryption mechanism of `attr_keyring` totally decoupled from ActiveRecord/Sequel. First, make sure you load `keyring` instead. Then you can create a keyring to encrypt/decrypt strings, without even touching the database.
 
 ```ruby
 require "keyring"
@@ -231,7 +213,7 @@ puts decrypted
 #=> super secret
 ```
 
-### Exchange data with Ruby
+### Exchange data with Node.js
 
 If you use Node.js, you may be interested in <https://github.com/fnando/keyring-node>, which is able to read and write messages using the same format.
 
