@@ -6,6 +6,8 @@ require "attr_keyring"
 require "minitest/utils"
 require "minitest/autorun"
 
+require "active_record"
+
 ActiveRecord::Base.establish_connection("postgres:///test")
 
 ActiveRecord::Schema.define(version: 0) do

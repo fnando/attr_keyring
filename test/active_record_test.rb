@@ -1,6 +1,6 @@
 require "test_helper"
 
-class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
+class ActiveRecordTest < Minitest::Test # rubocop:disable Metrics/ClassLength
   setup do
     ActiveRecord::Base.connection.execute "truncate users"
   end
@@ -57,7 +57,7 @@ class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
   test "deals with abstract classes and inheriting" do
     abstract_class = Class.new(ActiveRecord::Base) do
       self.abstract_class = true
-      include AttrKeyring
+      include AttrKeyring.active_record
     end
 
     user_class = Class.new(abstract_class) do
@@ -470,7 +470,7 @@ class AttrKeyringTest < Minitest::Test # rubocop:disable Metrics/ClassLength
   def create_model(&block)
     Class.new(ActiveRecord::Base) do
       self.table_name = :users
-      include AttrKeyring
+      include AttrKeyring.active_record
       instance_eval(&block)
     end
   end

@@ -1,5 +1,32 @@
+require "active_record"
+
 module AttrKeyring
   module ActiveRecord
+    def self.included(target)
+      target.class_eval do
+        extend ClassMethods
+        include InstanceMethods
+
+        class << self
+          attr_accessor :encrypted_attributes
+          attr_accessor :keyring
+
+          def inherited(subclass)
+            super
+
+            subclass.encrypted_attributes = []
+            subclass.keyring = Keyring.new({})
+          end
+        end
+
+        cattr_accessor :keyring_column_name, default: "keyring_id"
+        self.encrypted_attributes = []
+        self.keyring = Keyring.new({})
+
+        before_save :migrate_to_latest_encryption_key
+      end
+    end
+
     module ClassMethods
       def attr_keyring(keyring, encryptor: Keyring::Encryptor::AES::AES128CBC)
         self.keyring = Keyring.new(keyring, encryptor)
