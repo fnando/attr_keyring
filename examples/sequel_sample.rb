@@ -4,41 +4,38 @@ require "stringio"
 gemfile do
   source "https://rubygems.org"
   gem "sqlite3"
-  gem "activerecord", require: "active_record"
+  gem "sequel"
+  gem "pry-meta"
   gem "attr_keyring",
       path: File.expand_path("..", __dir__)
 end
 
-ActiveRecord::Base.establish_connection "sqlite3::memory:"
+Sequel.extension :migration
 
-begin
-  previous_stdout = $stdout
-  $stdout = StringIO.new
+DB = Sequel.sqlite
 
-  ActiveRecord::Schema.define(version: 0) do
-    create_table :users do |t|
-      t.binary :encrypted_email, null: false
-      t.text :email_digest, null: false
-      t.integer :keyring_id, null: false
+Sequel.migration do
+  up do
+    create_table(:users) do
+      primary_key :id
+      String :encrypted_email, null: false
+      String :email_digest, null: false
+      Integer :keyring_id, null: false
     end
-
-    add_index :users, :email_digest, unique: true
   end
-ensure
-  $stdout = previous_stdout
-end
+end.apply(DB, :up)
 
-class ApplicationRecord < ActiveRecord::Base
-  self.abstract_class = true
+class User < Sequel::Model
+  include AttrKeyring.sequel
+  plugin :validation_helpers
 
-  include AttrKeyring
-end
-
-class User < ApplicationRecord
   attr_keyring "1" => "QSXyoiRDPoJmfkJUZ4hJeQ=="
   attr_encrypt :email
 
-  validates_uniqueness_of :email_digest
+  def validate
+    super
+    validates_unique :email_digest
+  end
 end
 
 john = User.create(email: "john@example.com")
@@ -71,13 +68,14 @@ puts john.keyring_id
 puts
 
 puts "🔎 search by email digest"
-user = User.find_by_email_digest(Digest::SHA1.hexdigest("jdoe@example.com"))
+user = User.first(email_digest: Digest::SHA1.hexdigest("jdoe@example.com"))
 puts user.email
 puts user == john
 puts
 
 puts "❌ duplicated email address"
-copycat = User.create(email: john.email)
+copycat = User.new(email: john.email)
+puts copycat.valid?
 p copycat.errors.to_h
 puts
 

@@ -1,8 +1,8 @@
 require "test_helper"
 
-class ActiveRecordTest < Minitest::Test # rubocop:disable Metrics/ClassLength
+class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
   setup do
-    ActiveRecord::Base.connection.execute "truncate users"
+    DB.run "truncate users"
   end
 
   test "raises exception when default keyring is used" do
@@ -54,76 +54,6 @@ class ActiveRecordTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_nil user.other_secret
   end
 
-  test "sets up abstract class" do
-    abstract_class = Class.new(ActiveRecord::Base) do
-      self.abstract_class = true
-      include AttrKeyring.active_record
-    end
-
-    assert_equal :keyring_id, abstract_class.keyring_column_name
-    assert_equal [], abstract_class.encrypted_attributes
-    assert_instance_of Keyring::Base, abstract_class.keyring
-  end
-
-  test "sets up non-abstract class" do
-    user_class = Class.new(ActiveRecord::Base) do
-      self.table_name = :users
-      include AttrKeyring.active_record
-    end
-
-    assert_equal user_class.keyring_column_name, :keyring_id
-    assert_equal user_class.encrypted_attributes, []
-    assert_instance_of Keyring::Base, user_class.keyring
-  end
-
-  test "inherits from abstract class" do
-    abstract_class = Class.new(ActiveRecord::Base) do
-      self.abstract_class = true
-      include AttrKeyring.active_record
-    end
-
-    user_class = Class.new(abstract_class) do
-      self.table_name = :users
-
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
-      attr_encrypt :secret
-    end
-
-    assert_equal :keyring_id, user_class.keyring_column_name
-    assert_equal [:secret], user_class.encrypted_attributes
-    assert_instance_of Keyring::Base, user_class.keyring
-  end
-
-  test "handles inheriting from base class" do
-    abstract_class = Class.new(ActiveRecord::Base) do
-      self.abstract_class = true
-      include AttrKeyring.active_record
-    end
-
-    user_class = Class.new(abstract_class) do
-      self.table_name = :users
-
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
-      attr_encrypt :secret
-    end
-
-    customer_class = Class.new(abstract_class) do
-      self.table_name = :customers
-
-      attr_keyring "0" => "4OW/P/3eCTeD6UGfiMXtOQ=="
-      attr_encrypt :super_secret
-    end
-
-    user = user_class.create(secret: "42")
-    customer = customer_class.create(super_secret: "37")
-
-    user.reload
-    customer.reload
-
-    assert_equal "42", user.secret
-    assert_equal "37", customer.super_secret
-  end
-
   test "saves digest value" do
     model_class = create_model do
       attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
@@ -143,7 +73,7 @@ class ActiveRecordTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
     user = model_class.create(secret: "42")
     user.secret = "new secret"
-    user.save!
+    user.save
 
     user.reload
 
@@ -164,7 +94,7 @@ class ActiveRecordTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_equal "92cfceb39d57d914ed8b14d0e37643de0797ae56", user.secret_digest
 
     user.secret = "37"
-    user.save!
+    user.save
     user.reload
 
     assert_equal "cb7a1d775e800fd1ee4049f7dca9e041eb9ba083", user.secret_digest
@@ -253,7 +183,7 @@ class ActiveRecordTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
     model_class.keyring["1"] = "5nAp51BMNKNh2zECMFEQ0Q=="
 
-    user.save!
+    user.save
     user.reload
 
     assert_equal "42", user.secret
@@ -296,7 +226,7 @@ class ActiveRecordTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     model_class.keyring["1"] = "5nAp51BMNKNh2zECMFEQ0Q=="
 
     user.secret = "new secret"
-    user.save!
+    user.save
     user.reload
 
     assert_equal "new secret", user.secret
@@ -324,14 +254,12 @@ class ActiveRecordTest < Minitest::Test # rubocop:disable Metrics/ClassLength
       attr_encrypt :secret
     end
 
-    user = model_class.create(secret: "42")
+    model_class.create(secret: "42")
 
     model_class.keyring.clear
     model_class.keyring["1"] = "5nAp51BMNKNh2zECMFEQ0Q=="
 
-    user.reload
-
-    assert_raises(Keyring::UnknownKey) { user.secret }
+    assert_raises(Keyring::UnknownKey) { model_class.first.secret }
   end
 
   test "caches decrypted value" do
@@ -508,9 +436,8 @@ class ActiveRecordTest < Minitest::Test # rubocop:disable Metrics/ClassLength
   end
 
   def create_model(&block)
-    Class.new(ActiveRecord::Base) do
-      self.table_name = :users
-      include AttrKeyring.active_record
+    Class.new(Sequel::Model(:users)) do
+      include AttrKeyring.sequel
       instance_eval(&block)
     end
   end
