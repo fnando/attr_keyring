@@ -10,7 +10,7 @@
 
 N.B.: attr_keyring is *not* for encrypting passwords--for that, you should use something like [bcrypt](https://github.com/codahale/bcrypt-ruby). It's meant for encrypting sensitive data you will need to access in plain text (e.g. storing OAuth token from users). Passwords do not fall in that category.
 
-This library is heavily inspired by [attr_vault](https://github.com/uhoh-itsmaciek/attr_vault) but it's not a direct port and same keys won't work here without some manual intervention.
+This library is heavily inspired by [attr_vault](https://github.com/uhoh-itsmaciek/attr_vault), and can read encrypted messages if you encode them in base64 (e.g. `Base64.strict_encode64(encrypted_by_attr_vault)`).
 
 ## Installation
 
@@ -29,6 +29,39 @@ Or install it yourself as:
     $ gem install attr_keyring
 
 ## Usage
+
+### Basic usage
+
+```ruby
+gem "attr_keyring"
+require "keyring"
+
+keyring = Keyring.new("1" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M=")
+
+# STEP 1: Encrypt message using latest encryption key.
+encrypted, keyring_id, digest = keyring.encrypt("super secret")
+
+puts "🔒 #{encrypted}"
+puts "🔑 #{keyring_id}"
+puts "🔎 #{digest}"
+
+# STEP 2: Decrypted message using encryption key defined by keyring id.
+decrypted = keyring.decrypt(encrypted, keyring_id)
+puts "✉️ #{decrypted}"
+```
+
+#### Change encryption algorithm
+
+You can choose between `AES-128-CBC`, `AES-192-CBC` and `AES-256-CBC`. By default, `AES-128-CBC` will be used.
+
+To specify the encryption algorithm, set the `encryption` option. The following example uses `AES-256-CBC`.
+
+```js
+import { keyring } from "@fnando/keyring";
+
+const keys = {"1": "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="};
+const encryptor = keyring(keys, {encryption: "aes-256-cbc"});
+```
 
 ### Configuration
 
@@ -93,34 +126,30 @@ user.encrypted_email
 
 ### Encryption
 
-By default, AES-128-CBC is the algorithm used for encryption. This algorithm uses 16 bytes keys. Using 16-bytes of random data base64-encoded is the recommended way. You can easily generate keys by using the following command:
+By default, AES-128-CBC is the algorithm used for encryption. This algorithm uses 16 bytes keys, but you're required to use a key that's double the size because half of that keys will be used to generate the HMAC. The first 16 bytes will be used as the encryption key, and the last 16 bytes will be used to generate the HMAC.
+
+Using random data base64-encoded is the recommended way. You can easily generate keys by using the following command:
 
 ```console
-$ dd if=/dev/urandom bs=16 count=1 2>/dev/null | openssl base64
+$ dd if=/dev/urandom bs=32 count=1 2>/dev/null | openssl base64 -A
+qUjOJFgZsZbTICsN0TMkKqUvSgObYxnkHDsazTqE5tM=
 ```
 
-Include the result of this in the `value` section of the key description in the keyring.
-
-You can also use AES-256-CBC, which uses 32-bytes keys. To specify the encryptor when defining the keyring, use `encryptor: AttrKeyring::Encryptor::AES256CBC`.
-
-```ruby
-class User < ApplicationRecord
-  attr_keyring ENV["USER_KEYRING"],
-               encryptor: AttrKeyring::Encryptor::AES256CBC
-end
-```
+Include the result of this command in the `value` section of the key description in the keyring. Half this key is used for encryption, and half for the HMAC.
 
 #### Key size
 
-- `aes-128-cbc`: 16 bytes.
-- `aes-192-cbc`: 24 bytes.
-- `aes-256-cbc`: 32 bytes.
+The key size depends on the algorithm being used. The key size should be double the size as half of it is used for HMAC computation.
+
+- `aes-128-cbc`: 16 bytes (encryption) + 16 bytes (HMAC).
+- `aes-192-cbc`: 24 bytes (encryption) + 24 bytes (HMAC).
+- `aes-256-cbc`: 32 bytes (encryption) + 32 bytes (HMAC).
 
 #### About the encrypted message
 
 Initialization vectors (IV) should be unpredictable and unique; ideally, they will be cryptographically random. They do not have to be secret: IVs are typically just added to ciphertext messages unencrypted. It may sound contradictory that something has to be unpredictable and unique, but does not have to be secret; it is important to remember that an attacker must not be able to predict ahead of time what a given IV will be.
 
-With that in mind, attr_keyring uses `unencrypted iv + encrypted message` as the value of `encrypted_<column>`. If you're planning to migrate from other encryption mechanisms or read encrypted values from the database without using attr_keyring, make sure you account for this. The IV length can be retrieved by `OpenSSL::Cipher#iv_len`, e.g. `OpenSSL::Cipher.new("AES-128-CBC").iv_len`.
+With that in mind, _attr_keyring_ uses `base64(hmac(unencrypted iv + encrypted message) + unencrypted iv + encrypted message)` as the final message. If you're planning to migrate from other encryption mechanisms or read encrypted values from the database without using _attr_keyring_, make sure you account for this. The HMAC is 32-bytes long and the IV is 16-bytes long.
 
 ### Keyring
 
@@ -128,8 +157,8 @@ Keys are managed through a keyring--a short JSON document describing your encryp
 
 ```json
 {
-  "1": "QSXyoiRDPoJmfkJUZ4hJeQ==",
-  "2": "r6AfOeilPDJomFsiOXLdfQ=="
+  "1": "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M=",
+  "2": "VN8UXRVMNbIh9FWEFVde0q7GUA1SGOie1+FgAKlNYHc="
 }
 ```
 

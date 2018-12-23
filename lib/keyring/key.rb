@@ -1,11 +1,11 @@
 module Keyring
   class Key
-    attr_reader :id, :value
+    attr_reader :id, :signing_key, :encryption_key
 
-    def initialize(id, value, key_size)
+    def initialize(id, key, key_size)
       @id = Integer(id)
       @key_size = key_size
-      @value = decode(value)
+      @encryption_key, @signing_key = parse(key)
     end
 
     def to_s
@@ -13,18 +13,25 @@ module Keyring
     end
     alias_method :inspect, :to_s
 
-    private def decode(secret)
-      return secret if secret.bytesize == @key_size
+    private def parse(key)
+      expected_key_size = @key_size * 2
 
-      value = begin
-                Base64.strict_decode64(secret)
-              rescue ArgumentError
-                Base64.decode64(secret)
-              end
+      secret = if key.bytesize == expected_key_size
+                 key
+               else
+                 begin
+                   Base64.strict_decode64(key)
+                 rescue ArgumentError
+                   Base64.decode64(key)
+                 end
+               end
 
-      return value if value.bytesize == @key_size
+      raise InvalidSecret, "Secret must be #{expected_key_size} bytes, instead got #{secret.bytesize}" unless secret.bytesize == expected_key_size
 
-      raise InvalidSecret, "Secret must be #{@key_size} bytes, instead got #{value.bytesize}"
+      signing_key = secret[0...@key_size]
+      encryption_key = secret[@key_size..-1]
+
+      [encryption_key, signing_key]
     end
   end
 end

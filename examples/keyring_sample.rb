@@ -6,13 +6,18 @@ gemfile do
       path: File.expand_path("..", __dir__)
 end
 
-keyring = Keyring.new("1" => "QSXyoiRDPoJmfkJUZ4hJeQ==")
+gem "attr_keyring"
+require "keyring"
 
+keyring = Keyring.new("1" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M=")
+
+# STEP 1: Encrypt message using latest encryption key.
 encrypted, keyring_id, digest = keyring.encrypt("super secret")
 
-puts encrypted
-puts keyring_id
-puts digest
+puts "🔒 #{encrypted}"
+puts "🔑 #{keyring_id}"
+puts "🔎 #{digest}"
 
+# STEP 2: Decrypted message using encryption key defined by keyring id.
 decrypted = keyring.decrypt(encrypted, keyring_id)
-puts decrypted
+puts "✉️ #{decrypted}"

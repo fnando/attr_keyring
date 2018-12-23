@@ -1,5 +1,7 @@
 require "simplecov"
-SimpleCov.start
+SimpleCov.start do
+  add_filter "/test/"
+end
 
 require "bundler/setup"
 require "attr_keyring"
@@ -7,6 +9,9 @@ require "minitest/utils"
 require "minitest/autorun"
 
 require "active_record"
+require "attr_vault/cryptor"
+require "attr_vault/secret"
+require "attr_vault/encryption"
 
 ActiveRecord::Base.establish_connection("postgres:///test")
 
