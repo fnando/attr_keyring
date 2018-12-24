@@ -17,7 +17,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "encrypts value" do
     model_class = create_model do
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret
     end
 
@@ -31,7 +31,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "saves keyring id" do
     model_class = create_model do
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret
     end
 
@@ -43,7 +43,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "handles nil values during encryption" do
     model_class = create_model do
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret, :other_secret
     end
 
@@ -56,7 +56,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "saves digest value" do
     model_class = create_model do
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret
     end
 
@@ -67,7 +67,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "updates encrypted value" do
     model_class = create_model do
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret
     end
 
@@ -85,7 +85,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "updates digest" do
     model_class = create_model do
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret
     end
 
@@ -102,7 +102,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "assigns digest even without saving" do
     model_class = create_model do
-      attr_keyring "0" => SecureRandom.bytes(16)
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret
     end
 
@@ -113,7 +113,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "assigns nil values" do
     model_class = create_model do
-      attr_keyring "0" => SecureRandom.bytes(16)
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret
     end
 
@@ -126,7 +126,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "assigns non-string values" do
     model_class = create_model do
-      attr_keyring "0" => SecureRandom.bytes(16)
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret
     end
 
@@ -138,7 +138,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "assigns nil after saving encrypted value" do
     model_class = create_model do
-      attr_keyring "0" => SecureRandom.bytes(16)
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret
     end
 
@@ -156,13 +156,13 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "encrypts with newer key when assigning new value" do
     model_class = create_model do
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret
     end
 
     user = model_class.create(secret: "42")
 
-    model_class.keyring["1"] = "5nAp51BMNKNh2zECMFEQ0Q=="
+    model_class.keyring["1"] = "VN8UXRVMNbIh9FWEFVde0q7GUA1SGOie1+FgAKlNYHc="
 
     user.update(secret: "new secret")
     user.reload
@@ -175,13 +175,13 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "encrypts with newer key when saving" do
     model_class = create_model do
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret
     end
 
     user = model_class.create(secret: "42")
 
-    model_class.keyring["1"] = "5nAp51BMNKNh2zECMFEQ0Q=="
+    model_class.keyring["1"] = "VN8UXRVMNbIh9FWEFVde0q7GUA1SGOie1+FgAKlNYHc="
 
     user.save
     user.reload
@@ -194,7 +194,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "encrypts several columns at once" do
     model_class = create_model do
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret, :other_secret
     end
 
@@ -212,7 +212,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "encrypts columns with different keys set at different times" do
     model_class = create_model do
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret, :other_secret
     end
 
@@ -223,7 +223,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_equal "other secret", user.other_secret
     assert_equal 0, user.keyring_id
 
-    model_class.keyring["1"] = "5nAp51BMNKNh2zECMFEQ0Q=="
+    model_class.keyring["1"] = "VN8UXRVMNbIh9FWEFVde0q7GUA1SGOie1+FgAKlNYHc="
 
     user.secret = "new secret"
     user.save
@@ -236,8 +236,8 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "encrypts column with most recent key" do
     model_class = create_model do
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg==",
-                   "1" => "5nAp51BMNKNh2zECMFEQ0Q=="
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M=",
+                   "1" => "VN8UXRVMNbIh9FWEFVde0q7GUA1SGOie1+FgAKlNYHc="
       attr_encrypt :secret
     end
 
@@ -250,21 +250,21 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "raises exception when key is missing" do
     model_class = create_model do
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret
     end
 
     model_class.create(secret: "42")
 
     model_class.keyring.clear
-    model_class.keyring["1"] = "5nAp51BMNKNh2zECMFEQ0Q=="
+    model_class.keyring["1"] = "VN8UXRVMNbIh9FWEFVde0q7GUA1SGOie1+FgAKlNYHc="
 
     assert_raises(Keyring::UnknownKey) { model_class.first.secret }
   end
 
   test "caches decrypted value" do
     model_class = create_model do
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret
     end
 
@@ -276,7 +276,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "clears cache when assigning values" do
     model_class = create_model do
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret
     end
 
@@ -290,7 +290,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "rotates key" do
     model_class = create_model do
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret
     end
 
@@ -300,7 +300,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_equal "42", user.secret
     assert_equal 0, user.keyring_id
 
-    model_class.keyring["1"] = "5nAp51BMNKNh2zECMFEQ0Q=="
+    model_class.keyring["1"] = "VN8UXRVMNbIh9FWEFVde0q7GUA1SGOie1+FgAKlNYHc="
 
     user.keyring_rotate!
     user.reload
@@ -311,7 +311,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "encrypts all attributes when setting only one attribute" do
     model_class = create_model do
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret, :other_secret
     end
 
@@ -321,7 +321,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_equal "42", user.secret
     assert_equal 0, user.keyring_id
 
-    model_class.keyring["1"] = "5nAp51BMNKNh2zECMFEQ0Q=="
+    model_class.keyring["1"] = "VN8UXRVMNbIh9FWEFVde0q7GUA1SGOie1+FgAKlNYHc="
 
     user.secret = "24"
     user.save
@@ -335,7 +335,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "returns unitialized attributes" do
     model_class = create_model do
-      attr_keyring "0" => "XSzMZOONFkli/hiArK9dKg=="
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
       attr_encrypt :secret
     end
 
@@ -344,58 +344,9 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_nil user.secret
   end
 
-  test "encrypts value using raw bytes key" do
-    model_class = create_model do
-      attr_keyring "0" => SecureRandom.bytes(16)
-      attr_encrypt :secret
-    end
-
-    user = model_class.create(secret: "42")
-    user.reload
-
-    assert_equal "42", user.secret
-    assert_equal 0, user.keyring_id
-  end
-
-  test "encrypts value base64 encoded key" do
-    model_class = create_model do
-      attr_keyring "0" => Base64.encode64(SecureRandom.bytes(16))
-      attr_encrypt :secret
-    end
-
-    user = model_class.create(secret: "42")
-    user.reload
-
-    assert_equal "42", user.secret
-    assert_equal 0, user.keyring_id
-  end
-
-  test "encrypts value base64 strict encoded key" do
-    model_class = create_model do
-      attr_keyring "0" => Base64.strict_encode64(SecureRandom.bytes(16))
-      attr_encrypt :secret
-    end
-
-    user = model_class.create(secret: "42")
-    user.reload
-
-    assert_equal "42", user.secret
-    assert_equal 0, user.keyring_id
-  end
-
-  test "raises exception with invalid key size" do
-    model_class = create_model do
-      attr_keyring Hash.new
-    end
-
-    assert_raises(Keyring::InvalidSecret, "Secret must be 16 bytes, instead got 32") do
-      model_class.keyring["0"] = Base64.strict_encode64(SecureRandom.bytes(32))
-    end
-  end
-
   test "encrypts using AES-128-CBC" do
     model_class = create_model do
-      keyring_store = {"0" => "2EPEXzEVZqVbIbfZXfe3Ew=="}
+      keyring_store = {"0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="}
       attr_keyring keyring_store, encryptor: Keyring::Encryptor::AES::AES128CBC
       attr_encrypt :secret
     end
@@ -409,7 +360,7 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   test "encrypts using AES-192-CBC" do
     model_class = create_model do
-      keyring_store = {"0" => "zfttbrsNvHU89lNFuNRs0ajZugaxK5Wj"}
+      keyring_store = {"0" => "wtnnoK+5an+FPtxnkdUDrNw6fAq8yMkvCvzWpriLL9TQTR2WC/k+XPahYFPvCemG"}
       attr_keyring keyring_store, encryptor: Keyring::Encryptor::AES::AES192CBC
       attr_encrypt :secret
     end
@@ -421,18 +372,18 @@ class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_equal 0, user.keyring_id
   end
 
-  test "decrypts node's aes-128-cbc encryption" do
-    encrypted = "kdyvxF3yiToqlI/U91wxXkc5DB6vJvdgWfHxFCpy1Ko="
-
+  test "encrypts using AES-256-CBC" do
     model_class = create_model do
-      keyring_store = {"0" => "XSzMZOONFkli/hiArK9dKg=="}
-      attr_keyring keyring_store, encryptor: Keyring::Encryptor::AES::AES128CBC
+      keyring_store = {"0" => "XZXC+c7VUVGpyAceSUCOBbrp2fjJeeHwoaMQefgSCfp0/HABY5yJ7zRiLZbDlDZ7HytCRsvP4CxXt5hUqtx9Uw=="}
+      attr_keyring keyring_store, encryptor: Keyring::Encryptor::AES::AES256CBC
       attr_encrypt :secret
     end
 
-    user = model_class.create(encrypted_secret: encrypted)
+    user = model_class.create(secret: "42")
+    user.reload
 
     assert_equal "42", user.secret
+    assert_equal 0, user.keyring_id
   end
 
   def create_model(&block)

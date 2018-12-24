@@ -19,6 +19,9 @@ GEM
       tzinfo (~> 1.1)
     arel (9.0.0)
     ast (2.4.0)
+    attr_vault (2.1.1)
+      pg (>= 0.18)
+      sequel (>= 4.13, < 6.0)
     awesome_print (1.8.0)
     byebug (10.0.2)
     coderay (1.1.2)
@@ -83,6 +86,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord
   attr_keyring!
+  attr_vault
   bundler
   minitest-utils
   mocha

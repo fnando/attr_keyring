@@ -9,6 +9,7 @@ module Keyring
   UnknownKey = Class.new(StandardError)
   InvalidSecret = Class.new(StandardError)
   EmptyKeyring = Class.new(StandardError)
+  InvalidAuthentication = Class.new(StandardError)
 
   class Base
     def initialize(keyring, encryptor)
@@ -31,8 +32,8 @@ module Keyring
       raise UnknownKey, "key=#{id} is not available on keyring"
     end
 
-    def []=(id, value)
-      @keyring << Key.new(id, value, @encryptor.key_size)
+    def []=(id, key)
+      @keyring << Key.new(id, key, @encryptor.key_size)
     end
 
     def clear
@@ -42,16 +43,18 @@ module Keyring
     def encrypt(message, keyring_id = nil)
       keyring_id ||= current_key&.id
       digest = Digest::SHA1.hexdigest(message)
+      key = self[keyring_id]
 
       [
-        @encryptor.encrypt(self[keyring_id].value, message),
+        @encryptor.encrypt(key, message),
         keyring_id,
         digest
       ]
     end
 
     def decrypt(message, keyring_id)
-      @encryptor.decrypt(self[keyring_id].value, message)
+      key = self[keyring_id]
+      @encryptor.decrypt(key, message)
     end
   end
 
