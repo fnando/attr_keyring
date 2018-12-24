@@ -4,8 +4,8 @@ class KeyTest < Minitest::Test
   test "prevents key leaking" do
     key = Keyring::Key.new(1, "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M=", 16)
 
-    assert_equal "#<AttrKeyring::Key id=1>", key.to_s
-    assert_equal "#<AttrKeyring::Key id=1>", key.inspect
+    assert_equal "#<Keyring::Key id=1>", key.to_s
+    assert_equal "#<Keyring::Key id=1>", key.inspect
   end
 
   test "accepts keys with valid size (bytes)" do
