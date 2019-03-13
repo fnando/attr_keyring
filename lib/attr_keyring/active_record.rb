@@ -17,11 +17,13 @@ module AttrKeyring
       target.prepend(
         Module.new do
           def reload(options = nil)
-            super
+            instance = super
 
             self.class.encrypted_attributes.each do |attribute|
               clear_decrypted_column_cache(attribute)
             end
+
+            instance
           end
         end
       )

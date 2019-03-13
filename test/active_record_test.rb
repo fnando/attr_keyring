@@ -15,6 +15,16 @@ class ActiveRecordTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     end
   end
 
+  test "reloads keeps working" do
+    model_class = create_model do
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_encrypt :secret
+    end
+
+    user = model_class.create(secret: "42")
+    assert_equal user, user.reload
+  end
+
   test "encrypts value" do
     model_class = create_model do
       attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
