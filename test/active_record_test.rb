@@ -64,6 +64,18 @@ class ActiveRecordTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_nil user.other_secret
   end
 
+  test "handles empty values during encryption" do
+    model_class = create_model do
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_encrypt :secret, :other_secret
+    end
+
+    user = model_class.create(secret: "")
+    user.reload
+
+    assert_nil user.secret
+  end
+
   test "sets up abstract class" do
     abstract_class = Class.new(ActiveRecord::Base) do
       self.abstract_class = true

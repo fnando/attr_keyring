@@ -68,7 +68,7 @@ module AttrKeyring
   module InstanceMethods
     private def attr_encrypt_column(attribute, value)
       clear_decrypted_column_cache(attribute)
-      return reset_encrypted_column(attribute) unless value
+      return reset_encrypted_column(attribute) unless encryptable_value?(value)
 
       value = value.to_s
 
@@ -108,7 +108,7 @@ module AttrKeyring
 
       self.class.encrypted_attributes.each do |attribute|
         value = public_send(attribute)
-        next if value.nil?
+        next unless encryptable_value?(value)
 
         encrypted_value, _, digest = self.class.keyring.encrypt(value)
 
@@ -117,6 +117,13 @@ module AttrKeyring
       end
 
       public_send("#{self.class.keyring_column_name}=", keyring_id)
+    end
+
+    private def encryptable_value?(value)
+      return false if value.nil?
+      return false if value.is_a?(String) && value.empty?
+
+      true
     end
   end
 end
