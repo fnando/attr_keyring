@@ -121,6 +121,8 @@ module AttrKeyring
     end
 
     private def migrate_to_latest_encryption_key
+      return unless self.class.keyring.current_key
+
       keyring_id = self.class.keyring.current_key.id
 
       self.class.encrypted_attributes.each do |attribute|
@@ -130,6 +132,7 @@ module AttrKeyring
         encrypted_value, _, digest = self.class.keyring.encrypt(value)
 
         public_send("encrypted_#{attribute}=", encrypted_value)
+
         if respond_to?("#{attribute}_digest")
           public_send("#{attribute}_digest=", digest)
         end

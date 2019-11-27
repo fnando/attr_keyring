@@ -7,6 +7,13 @@ class ActiveRecordTest < Minitest::Test
     ActiveRecord::Base.connection.execute "truncate users"
   end
 
+  test "ignores classes that did not setup the keyring with attr_keyring" do
+    model_class = create_model(:sessions)
+    session = model_class.create!
+
+    refute session.new_record?
+  end
+
   test "raises exception when default keyring is used" do
     model_class = create_model do
       attr_encrypt :secret
@@ -495,11 +502,11 @@ class ActiveRecordTest < Minitest::Test
     assert_equal 0, user.keyring_id
   end
 
-  def create_model(&block)
-    Class.new(ActiveRecord::Base) do
-      self.table_name = :users
+  def create_model(table_name = :users, &block)
+    Class.new(ApplicationRecord) do
+      self.table_name = table_name
       include AttrKeyring.active_record
-      instance_eval(&block)
+      instance_eval(&block) if block
     end
   end
 end
