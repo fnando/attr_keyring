@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Keyring
   module Encryptor
     module AES
@@ -35,7 +37,9 @@ module Keyring
 
           expected_hmac = hmac_digest(key.signing_key, encrypted_payload)
 
-          raise InvalidAuthentication, "Expected HMAC to be #{Base64.strict_encode64(expected_hmac)}; got #{Base64.strict_encode64(hmac)} instead" unless verify_signature(expected_hmac, hmac)
+          unless verify_signature(expected_hmac, hmac)
+            raise InvalidAuthentication, "Expected HMAC to be #{Base64.strict_encode64(expected_hmac)}; got #{Base64.strict_encode64(hmac)} instead" # rubocop:disable Metrics/LineLength
+          end
 
           cipher.iv = iv
           cipher.key = key.encryption_key

@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
-class ActiveRecordTest < Minitest::Test # rubocop:disable Metrics/ClassLength
+class ActiveRecordTest < Minitest::Test
   setup do
     ActiveRecord::Base.connection.execute "truncate users"
   end
@@ -46,6 +48,19 @@ class ActiveRecordTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     end
 
     user = model_class.create(secret: "42")
+    user.reload
+
+    assert_equal 0, user.keyring_id
+  end
+
+  test "saves keyring id using #save" do
+    model_class = create_model do
+      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_encrypt :secret
+    end
+
+    user = model_class.new(secret: "42")
+    user.save!
     user.reload
 
     assert_equal 0, user.keyring_id

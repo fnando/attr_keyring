@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
-class SequelTest < Minitest::Test # rubocop:disable Metrics/ClassLength
+class SequelTest < Minitest::Test
   setup do
     DB.run "truncate users"
   end
