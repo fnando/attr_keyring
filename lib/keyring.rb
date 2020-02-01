@@ -12,10 +12,19 @@ module Keyring
   InvalidSecret = Class.new(StandardError)
   EmptyKeyring = Class.new(StandardError)
   InvalidAuthentication = Class.new(StandardError)
+  MissingDigestSalt = Class.new(StandardError) do
+    def message
+      %w[
+        Please provide :digest_salt;
+        you can disable this error by explicitly passing an empty string.
+      ].join(" ")
+    end
+  end
 
   class Base
     def initialize(keyring, options)
       @encryptor = options[:encryptor]
+      @digest_salt = options[:digest_salt]
       @keyring = keyring.map do |id, value|
         Key.new(id, value, @encryptor.key_size)
       end
@@ -44,13 +53,12 @@ module Keyring
 
     def encrypt(message, keyring_id = nil)
       keyring_id ||= current_key&.id
-      digest = Digest::SHA1.hexdigest(message)
       key = self[keyring_id]
 
       [
         @encryptor.encrypt(key, message),
         keyring_id,
-        digest
+        digest(message)
       ]
     end
 
@@ -58,12 +66,18 @@ module Keyring
       key = self[keyring_id]
       @encryptor.decrypt(key, message)
     end
+
+    def digest(message)
+      Digest::SHA1.hexdigest("#{message}#{@digest_salt}")
+    end
   end
 
   def self.new(keyring, options = {})
     options = {
       encryptor: Encryptor::AES::AES128CBC
     }.merge(options)
+
+    raise MissingDigestSalt if options[:digest_salt].nil?
 
     Base.new(keyring, options)
   end

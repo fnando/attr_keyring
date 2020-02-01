@@ -26,7 +26,7 @@ module AttrKeyring
       end
 
       self.encrypted_attributes = []
-      self.keyring = Keyring.new({})
+      self.keyring = Keyring.new({}, digest_salt: "")
       self.keyring_column_name = :keyring_id
     end
   end

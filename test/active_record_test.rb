@@ -26,7 +26,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "reloads keeps working" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -36,7 +37,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "encrypts value" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -50,7 +52,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "saves keyring id" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -62,7 +65,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "saves keyring id using #save" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -75,7 +79,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "handles nil values during encryption" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret, :other_secret
     end
 
@@ -88,7 +93,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "handles empty values during encryption" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret, :other_secret
     end
 
@@ -129,7 +135,8 @@ class ActiveRecordTest < Minitest::Test
     user_class = Class.new(abstract_class) do
       self.table_name = :users
 
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -147,14 +154,16 @@ class ActiveRecordTest < Minitest::Test
     user_class = Class.new(abstract_class) do
       self.table_name = :users
 
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
     customer_class = Class.new(abstract_class) do
       self.table_name = :customers
 
-      attr_keyring "0" => "rLqV4sOqlcWOESNiyGEL2E3nbjbx/pk3Y8Kr4fGqSgk="
+      attr_keyring Hash("0" => "rLqV4sOqlcWOESNiyGEL2E3nbjbx/pk3Y8Kr4fGqSgk="),
+                   digest_salt: ""
       attr_encrypt :super_secret
     end
 
@@ -170,18 +179,32 @@ class ActiveRecordTest < Minitest::Test
 
   test "saves digest value" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: "a"
       attr_encrypt :secret
     end
 
     user = model_class.create(secret: "42")
 
-    assert_equal "92cfceb39d57d914ed8b14d0e37643de0797ae56", user.secret_digest
+    assert_equal "118c884d37dde5fb6816daba052d94e82f1dc41f", user.secret_digest
+  end
+
+  test "finds record via digest value" do
+    model_class = create_model do
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: "a"
+      attr_encrypt :secret
+    end
+
+    user = model_class.create(secret: "42")
+
+    assert_equal user, model_class.find_by(secret_digest: model_class.keyring.digest("42"))
   end
 
   test "updates encrypted value" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -199,7 +222,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "updates digest" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -216,7 +240,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "assigns digest even without saving" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -227,7 +252,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "assigns nil values" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -240,7 +266,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "assigns non-string values" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -252,7 +279,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "assigns nil after saving encrypted value" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -270,7 +298,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "encrypts with newer key when assigning new value" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -289,7 +318,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "encrypts with newer key when saving" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -308,7 +338,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "encrypts several columns at once" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret, :other_secret
     end
 
@@ -326,7 +357,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "encrypts columns with different keys set at different times" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret, :other_secret
     end
 
@@ -350,8 +382,9 @@ class ActiveRecordTest < Minitest::Test
 
   test "encrypts column with most recent key" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M=",
-                   "1" => "VN8UXRVMNbIh9FWEFVde0q7GUA1SGOie1+FgAKlNYHc="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M=",
+                        "1" => "VN8UXRVMNbIh9FWEFVde0q7GUA1SGOie1+FgAKlNYHc="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -364,7 +397,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "raises exception when key is missing" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -380,7 +414,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "caches decrypted value" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -392,7 +427,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "clears cache when assigning values" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -406,7 +442,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "rotates key" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -427,7 +464,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "encrypts all attributes when setting only one attribute" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret, :other_secret
     end
 
@@ -451,7 +489,8 @@ class ActiveRecordTest < Minitest::Test
 
   test "returns unitialized attributes" do
     model_class = create_model do
-      attr_keyring "0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -463,7 +502,9 @@ class ActiveRecordTest < Minitest::Test
   test "encrypts using AES-128-CBC" do
     model_class = create_model do
       keyring_store = {"0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="}
-      attr_keyring keyring_store, encryptor: Keyring::Encryptor::AES::AES128CBC
+      attr_keyring keyring_store,
+                   encryptor: Keyring::Encryptor::AES::AES128CBC,
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -477,7 +518,9 @@ class ActiveRecordTest < Minitest::Test
   test "encrypts using AES-192-CBC" do
     model_class = create_model do
       keyring_store = {"0" => "wtnnoK+5an+FPtxnkdUDrNw6fAq8yMkvCvzWpriLL9TQTR2WC/k+XPahYFPvCemG"}
-      attr_keyring keyring_store, encryptor: Keyring::Encryptor::AES::AES192CBC
+      attr_keyring keyring_store,
+                   encryptor: Keyring::Encryptor::AES::AES192CBC,
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
@@ -491,7 +534,9 @@ class ActiveRecordTest < Minitest::Test
   test "encrypts using AES-256-CBC" do
     model_class = create_model do
       keyring_store = {"0" => "XZXC+c7VUVGpyAceSUCOBbrp2fjJeeHwoaMQefgSCfp0/HABY5yJ7zRiLZbDlDZ7HytCRsvP4CxXt5hUqtx9Uw=="}
-      attr_keyring keyring_store, encryptor: Keyring::Encryptor::AES::AES256CBC
+      attr_keyring keyring_store,
+                   encryptor: Keyring::Encryptor::AES::AES256CBC,
+                   digest_salt: ""
       attr_encrypt :secret
     end
 
