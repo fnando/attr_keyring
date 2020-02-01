@@ -5,7 +5,7 @@ require "test_helper"
 class ScenariosTest < Minitest::Test
   def self.scenario_encrypt(encryption, scenario)
     test "encrypts value (#{encryption})" do
-      keyring = Keyring.new({scenario.dig("key", "id") => scenario.dig("key", "value")}, encryption)
+      keyring = Keyring.new({scenario.dig("key", "id") => scenario.dig("key", "value")}, encryptor: encryption)
       encrypted, keyring_id, digest = keyring.encrypt(scenario["input"])
 
       assert_equal scenario.dig("encrypted", "keyring_id"), keyring_id
@@ -14,7 +14,7 @@ class ScenariosTest < Minitest::Test
     end
 
     test "decrypts value (#{encryption})" do
-      keyring = Keyring.new({scenario.dig("key", "id") => scenario.dig("key", "value")}, encryption)
+      keyring = Keyring.new({scenario.dig("key", "id") => scenario.dig("key", "value")}, encryptor: encryption)
       decrypted = keyring.decrypt(scenario.dig("encrypted", "value"), scenario.dig("encrypted", "keyring_id"))
       assert_equal scenario["input"], decrypted
     end
@@ -22,7 +22,7 @@ class ScenariosTest < Minitest::Test
 
   def self.scenario_rotate(encryption, scenario)
     test "rotates key (#{encryption})" do
-      keyring = Keyring.new({scenario.dig("key", "id") => scenario.dig("key", "value")}, encryption)
+      keyring = Keyring.new({scenario.dig("key", "id") => scenario.dig("key", "value")}, encryptor: encryption)
       encrypted, keyring_id, digest = keyring.encrypt(scenario["input"])
 
       assert_equal scenario.dig("encrypted", "keyring_id"), keyring_id
@@ -40,7 +40,7 @@ class ScenariosTest < Minitest::Test
 
   def self.scenario_update(encryption, scenario)
     test "update attribute (#{encryption})" do
-      keyring = Keyring.new({scenario.dig("key", "id") => scenario.dig("key", "value")}, encryption)
+      keyring = Keyring.new({scenario.dig("key", "id") => scenario.dig("key", "value")}, encryptor: encryption)
       encrypted, keyring_id, digest = keyring.encrypt(scenario["input"])
 
       assert_equal scenario.dig("encrypted", "keyring_id"), keyring_id

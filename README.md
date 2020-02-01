@@ -56,11 +56,11 @@ You can choose between `AES-128-CBC`, `AES-192-CBC` and `AES-256-CBC`. By defaul
 
 To specify the encryption algorithm, set the `encryption` option. The following example uses `AES-256-CBC`.
 
-```js
-import { keyring } from "@fnando/keyring";
-
-const keys = {"1": "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="};
-const encryptor = keyring(keys, {encryption: "aes-256-cbc"});
+```ruby
+keyring = Keyring.new(
+  "1" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M=",
+  encryptor: Keyring::Encryptor::AES256CBC
+)
 ```
 
 ### Configuration

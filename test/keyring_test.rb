@@ -62,7 +62,7 @@ class KeyringTest < Minitest::Test
 
   test "encrypts using AES-128-CBC" do
     keys = {"0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="}
-    keyring = Keyring.new(keys, Keyring::Encryptor::AES::AES128CBC)
+    keyring = Keyring.new(keys, encryptor: Keyring::Encryptor::AES::AES128CBC)
 
     encrypted, keyring_id, _ = keyring.encrypt("42")
     decrypted = keyring.decrypt(encrypted, keyring_id)
@@ -72,7 +72,7 @@ class KeyringTest < Minitest::Test
 
   test "encrypts using AES-192-CBC" do
     keys = {"0" => "wtnnoK+5an+FPtxnkdUDrNw6fAq8yMkvCvzWpriLL9TQTR2WC/k+XPahYFPvCemG"}
-    keyring = Keyring.new(keys, Keyring::Encryptor::AES::AES192CBC)
+    keyring = Keyring.new(keys, encryptor: Keyring::Encryptor::AES::AES192CBC)
 
     encrypted, keyring_id, _ = keyring.encrypt("42")
     decrypted = keyring.decrypt(encrypted, keyring_id)
@@ -82,7 +82,7 @@ class KeyringTest < Minitest::Test
 
   test "encrypts using AES-256-CBC" do
     keys = {"0" => "XZXC+c7VUVGpyAceSUCOBbrp2fjJeeHwoaMQefgSCfp0/HABY5yJ7zRiLZbDlDZ7HytCRsvP4CxXt5hUqtx9Uw=="}
-    keyring = Keyring.new(keys, Keyring::Encryptor::AES::AES256CBC)
+    keyring = Keyring.new(keys, encryptor: Keyring::Encryptor::AES::AES256CBC)
 
     encrypted, keyring_id, _ = keyring.encrypt("42")
     decrypted = keyring.decrypt(encrypted, keyring_id)

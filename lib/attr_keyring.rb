@@ -40,8 +40,8 @@ module AttrKeyring
       subclass.keyring_column_name = keyring_column_name
     end
 
-    def attr_keyring(keyring, encryptor: Keyring::Encryptor::AES::AES128CBC)
-      self.keyring = Keyring.new(keyring, encryptor)
+    def attr_keyring(keyring, options = {})
+      self.keyring = Keyring.new(keyring, options)
     end
 
     def attr_encrypt(*attributes)

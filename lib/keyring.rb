@@ -14,8 +14,8 @@ module Keyring
   InvalidAuthentication = Class.new(StandardError)
 
   class Base
-    def initialize(keyring, encryptor)
-      @encryptor = encryptor
+    def initialize(keyring, options)
+      @encryptor = options[:encryptor]
       @keyring = keyring.map do |id, value|
         Key.new(id, value, @encryptor.key_size)
       end
@@ -60,7 +60,11 @@ module Keyring
     end
   end
 
-  def self.new(keyring, encryptor = Encryptor::AES::AES128CBC)
-    Base.new(keyring, encryptor)
+  def self.new(keyring, options = {})
+    options = {
+      encryptor: Encryptor::AES::AES128CBC
+    }.merge(options)
+
+    Base.new(keyring, options)
   end
 end
