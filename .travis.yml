@@ -1,13 +1,12 @@
 ---
-
 language: ruby
 cache: bundler
 sudo: false
 notifications:
   email: false
 rvm:
+  - 2.7.1
   - 2.6.5
-  - 2.5.7
 services:
   - postgresql
 gemfiles:
@@ -15,7 +14,9 @@ gemfiles:
   - gemfiles/5_2.gemfile
 before_script:
   - createdb test
-  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - "curl -L
+    https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
+    > ./cc-test-reporter"
   - chmod +x ./cc-test-reporter
   - "./cc-test-reporter before-build"
 after_script:
