@@ -1,4 +1,4 @@
-![attr_keyring: Simple encryption-at-rest with key rotation support for Ruby.](https://raw.githubusercontent.com/fnando/attr_keyring/master/attr_keyring.png)
+![attr_keyring: Simple encryption-at-rest with key rotation support for Ruby.](https://raw.githubusercontent.com/fnando/attr_keyring/main/attr_keyring.png)
 
 <p align="center">
   <a href="https://travis-ci.org/fnando/attr_keyring"><img src="https://travis-ci.org/fnando/attr_keyring.svg" alt="Travis-CI"></a>
@@ -8,12 +8,15 @@
   <a href="https://rubygems.org/gems/attr_keyring"><img src="https://img.shields.io/gem/dt/attr_keyring.svg" alt="Gem"></a>
 </p>
 
-N.B.: attr_keyring is *not* for encrypting passwords--for that, you should use something like [bcrypt](https://github.com/codahale/bcrypt-ruby). It's meant for encrypting sensitive data you will need to access in plain text (e.g. storing OAuth token from users). Passwords do not fall in that category.
+N.B.: attr_keyring is _not_ for encrypting passwords--for that, you should use
+something like [bcrypt](https://github.com/codahale/bcrypt-ruby). It's meant for
+encrypting sensitive data you will need to access in plain text (e.g. storing
+OAuth token from users). Passwords do not fall in that category.
 
 This library is heavily inspired by
 [attr_vault](https://github.com/uhoh-itsmaciek/attr_vault), and can read
-encrypted messages if you encode them in base64
-(e.g. `Base64.strict_encode64(encrypted_by_attr_vault)`).
+encrypted messages if you encode them in base64 (e.g.
+`Base64.strict_encode64(encrypted_by_attr_vault)`).
 
 ## Installation
 
@@ -179,11 +182,12 @@ contradictory that something has to be unpredictable and unique, but does not
 have to be secret; it is important to remember that an attacker must not be able
 to predict ahead of time what a given IV will be.
 
-With that in mind, _attr_keyring_ uses `base64(hmac(unencrypted iv + encrypted
-message) + unencrypted iv + encrypted message)` as the final message. If you're
-planning to migrate from other encryption mechanisms or read encrypted values
-from the database without using _attr_keyring_, make sure you account for this.
-The HMAC is 32-bytes long and the IV is 16-bytes long.
+With that in mind, _attr_keyring_ uses
+`base64(hmac(unencrypted iv + encrypted message) + unencrypted iv + encrypted message)`
+as the final message. If you're planning to migrate from other encryption
+mechanisms or read encrypted values from the database without using
+_attr_keyring_, make sure you account for this. The HMAC is 32-bytes long and
+the IV is 16-bytes long.
 
 ### Keyring
 
@@ -204,8 +208,8 @@ encryption key.
 
 #### Dynamically loading keyring
 
-If you're using Rails 5.2+, you can use credentials to define your keyring.
-Your `credentials.yml` must be define like the following:
+If you're using Rails 5.2+, you can use credentials to define your keyring. Your
+`credentials.yml` must be define like the following:
 
 ```yaml
 user_keyring:
@@ -330,12 +334,11 @@ The gem is available as open source under the terms of the
 
 ## Icon
 
-Icon made by [Icongeek26](https://www.flaticon.com/authors/icongeek26)
-from [Flaticon](https://www.flaticon.com/) is licensed by Creative Commons BY
-3.0.
+Icon made by [Icongeek26](https://www.flaticon.com/authors/icongeek26) from
+[Flaticon](https://www.flaticon.com/) is licensed by Creative Commons BY 3.0.
 
 ## Code of Conduct
 
 Everyone interacting in the attr_keyring project’s codebases, issue trackers,
 chat rooms and mailing lists is expected to follow the
-[code of conduct](https://github.com/fnando/attr_keyring/blob/master/CODE_OF_CONDUCT.md).
+[code of conduct](https://github.com/fnando/attr_keyring/blob/main/CODE_OF_CONDUCT.md).
