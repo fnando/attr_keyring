@@ -16,4 +16,4 @@ task(:rubocop) do
   RuboCop::CLI.new.run(["--config", File.join(__dir__, ".rubocop.yml")])
 end
 
-task :default => [:test, :rubocop] # rubocop:disable Style/HashSyntax, Style/SymbolArray
+task default: %i[test rubocop]

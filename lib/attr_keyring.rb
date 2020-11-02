@@ -20,9 +20,7 @@ module AttrKeyring
       include InstanceMethods
 
       class << self
-        attr_accessor :encrypted_attributes
-        attr_accessor :keyring
-        attr_accessor :keyring_column_name
+        attr_accessor :encrypted_attributes, :keyring, :keyring_column_name
       end
 
       self.encrypted_attributes = []
