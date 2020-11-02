@@ -1,14 +1,13 @@
 ![attr_keyring: Simple encryption-at-rest with key rotation support for Ruby.](https://raw.githubusercontent.com/fnando/attr_keyring/main/attr_keyring.png)
 
 <p align="center">
-  <a href="https://travis-ci.org/fnando/attr_keyring"><img src="https://travis-ci.org/fnando/attr_keyring.svg" alt="Travis-CI"></a>
+  <a href="https://github.com/fnando/attr_keyring/actions?query=workflow%3ATests"><img src="https://github.com/fnando/attr_keyring/workflows/Tests/badge.svg" alt="Tests"></a>
   <a href="https://codeclimate.com/github/fnando/attr_keyring"><img src="https://codeclimate.com/github/fnando/attr_keyring/badges/gpa.svg" alt="Code Climate"></a>
-  <a href="https://codeclimate.com/github/fnando/attr_keyring/coverage"><img src="https://codeclimate.com/github/fnando/attr_keyring/badges/coverage.svg" alt="Test Coverage"></a>
   <a href="https://rubygems.org/gems/attr_keyring"><img src="https://img.shields.io/gem/v/attr_keyring.svg" alt="Gem"></a>
   <a href="https://rubygems.org/gems/attr_keyring"><img src="https://img.shields.io/gem/dt/attr_keyring.svg" alt="Gem"></a>
 </p>
 
-N.B.: attr_keyring is _not_ for encrypting passwords--for that, you should use
+N.B.: attr_keyring is not for encrypting passwords--for that, you should use
 something like [bcrypt](https://github.com/codahale/bcrypt-ruby). It's meant for
 encrypting sensitive data you will need to access in plain text (e.g. storing
 OAuth token from users). Passwords do not fall in that category.

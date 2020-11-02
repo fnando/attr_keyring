@@ -20,7 +20,7 @@ module Keyring
       secret = decode_key(key, expected_key_size)
 
       unless secret.bytesize == expected_key_size
-        raise InvalidSecret, "Secret must be #{expected_key_size} bytes, instead got #{secret.bytesize}" # rubocop:disable Metrics/LineLength
+        raise InvalidSecret, "Secret must be #{expected_key_size} bytes, instead got #{secret.bytesize}" # rubocop:disable Layout/LineLength
       end
 
       signing_key = secret[0...@key_size]
