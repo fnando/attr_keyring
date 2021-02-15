@@ -69,7 +69,7 @@ example uses `AES-256-CBC`.
 ```ruby
 keyring = Keyring.new(
   "1" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M=",
-  encryptor: Keyring::Encryptor::AES256CBC,
+  encryptor: Keyring::Encryptor::AES::AES256CBC,
   digest_salt: "<custom salt>"
 )
 ```
