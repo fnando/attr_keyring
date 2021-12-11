@@ -5,7 +5,7 @@ module Keyring
     attr_reader :id, :signing_key, :encryption_key
 
     def initialize(id, key, key_size)
-      @id = Integer(id)
+      @id = Integer(id.to_s)
       @key_size = key_size
       @encryption_key, @signing_key = parse_key(key)
     end

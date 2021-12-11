@@ -211,9 +211,10 @@ If you're using Rails 5.2+, you can use credentials to define your keyring. Your
 `credentials.yml` must be define like the following:
 
 ```yaml
+---
 user_keyring:
-  1: "QSXyoiRDPoJmfkJUZ4hJeQ=="
-  2: "r6AfOeilPDJomFsiOXLdfQ=="
+  "1": "QSXyoiRDPoJmfkJUZ4hJeQ=="
+  "2": "r6AfOeilPDJomFsiOXLdfQ=="
 ```
 
 Then you can setup your model by using
