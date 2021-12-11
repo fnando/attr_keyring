@@ -124,4 +124,14 @@ class KeyringTest < Minitest::Test
 
     assert_equal "42", decrypted
   end
+
+  test "works with keys as symbols (rails 7.0 fix)" do
+    sym_key = "0".to_sym
+    keys = {sym_key => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="}
+    keyring = Keyring.new(keys, digest_salt: "")
+
+    *, digest = keyring.encrypt("42")
+
+    assert_equal "92cfceb39d57d914ed8b14d0e37643de0797ae56", digest
+  end
 end
