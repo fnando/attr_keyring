@@ -4,6 +4,8 @@ name: Tests
 on:
   pull_request:
   push:
+  workflow_dispatch:
+    inputs: {}
 
 jobs:
   build:
@@ -15,6 +17,7 @@ jobs:
         ruby: ["2.7", "3.0"]
         gemfile:
           - gemfiles/7_0.gemfile
+          - gemfiles/6_1.gemfile
           - gemfiles/6_0.gemfile
 
     services:
