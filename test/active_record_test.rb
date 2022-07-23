@@ -562,6 +562,21 @@ class ActiveRecordTest < Minitest::Test
     assert_equal expected, user.secret
   end
 
+  test "wraps json with symbolized attributes" do
+    model_class = create_model do
+      keyring_store = {"0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="}
+      attr_keyring keyring_store, digest_salt: ""
+      attr_encrypt :secret, encoder: AttrKeyring::Encoders::JSONEncoder
+    end
+
+    user = model_class.create(secret: {message: "hello"})
+    user.reload
+
+    expected = {message: "hello"}
+
+    assert_equal expected, user.secret
+  end
+
   def create_model(table_name = :users, &block)
     Class.new(ApplicationRecord) do
       self.table_name = table_name
