@@ -144,6 +144,21 @@ user.encrypted_email
 #=> WG8Epo0ABz0Z1X5gX7kttc98w9Ei59B5uXGK36Zin9G0VqbxX3naOWOm4RI6w6Uu
 ```
 
+If you want to store a hash, you can use the `encoder:` option.
+
+```ruby
+class User < ApplicationRecord
+  attr_keyring ENV["USER_KEYRING"],
+               digest_salt: "<custom salt>"
+
+  attr_encrypt :data, encoder: JSON
+end
+```
+
+An encoder is just an object that responds to the methods `dump(data)` and
+`parse(data)`, just like the `JSON` interface. Alternatively, you can use
+`AttrKeyring::Encoders::JSON`, which returns hashes with symbolized keys.
+
 ### Encryption
 
 By default, AES-128-CBC is the algorithm used for encryption. This algorithm

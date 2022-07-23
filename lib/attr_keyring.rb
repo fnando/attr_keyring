@@ -3,6 +3,7 @@
 module AttrKeyring
   require "attr_keyring/version"
   require "keyring"
+  require "attr_keyring/encoders/json_encoder"
 
   def self.active_record
     require "attr_keyring/active_record"
@@ -23,7 +24,7 @@ module AttrKeyring
         attr_accessor :encrypted_attributes, :keyring, :keyring_column_name
       end
 
-      self.encrypted_attributes = []
+      self.encrypted_attributes = {}
       self.keyring = Keyring.new({}, digest_salt: "")
       self.keyring_column_name = :keyring_id
     end
@@ -42,11 +43,12 @@ module AttrKeyring
       self.keyring = Keyring.new(keyring, options)
     end
 
-    def attr_encrypt(*attributes)
-      self.encrypted_attributes ||= []
-      encrypted_attributes.push(*attributes)
+    def attr_encrypt(*attributes, encoder: nil)
+      self.encrypted_attributes ||= {}
 
       attributes.each do |attribute|
+        encrypted_attributes[attribute.to_sym] = {encoder: encoder}
+
         define_attr_encrypt_writer(attribute)
         define_attr_encrypt_reader(attribute)
       end
@@ -70,6 +72,8 @@ module AttrKeyring
       clear_decrypted_column_cache(attribute)
       return reset_encrypted_column(attribute) unless encryptable_value?(value)
 
+      encoder = self.class.encrypted_attributes[attribute][:encoder]
+      value = encoder.dump(value) if encoder
       value = value.to_s
 
       previous_keyring_id = public_send(self.class.keyring_column_name)
@@ -86,6 +90,7 @@ module AttrKeyring
 
     private def attr_decrypt_column(attribute)
       cache_name = :"@#{attribute}"
+
       if instance_variable_defined?(cache_name)
         return instance_variable_get(cache_name)
       end
@@ -98,6 +103,9 @@ module AttrKeyring
         encrypted_value,
         public_send(self.class.keyring_column_name)
       )
+
+      encoder = self.class.encrypted_attributes[attribute][:encoder]
+      decrypted_value = encoder.parse(decrypted_value) if encoder
 
       instance_variable_set(cache_name, decrypted_value)
     end
@@ -123,9 +131,12 @@ module AttrKeyring
 
       keyring_id = self.class.keyring.current_key.id
 
-      self.class.encrypted_attributes.each do |attribute|
+      self.class.encrypted_attributes.each do |attribute, options|
         value = public_send(attribute)
         next unless encryptable_value?(value)
+
+        encoder = options[:encoder]
+        value = encoder.dump(value) if encoder
 
         encrypted_value, _, digest = self.class.keyring.encrypt(value)
 

@@ -111,7 +111,7 @@ class ActiveRecordTest < Minitest::Test
     end
 
     assert_equal :keyring_id, abstract_class.keyring_column_name
-    assert_equal [], abstract_class.encrypted_attributes
+    assert_equal({}, abstract_class.encrypted_attributes)
     assert_instance_of Keyring::Base, abstract_class.keyring
   end
 
@@ -122,7 +122,7 @@ class ActiveRecordTest < Minitest::Test
     end
 
     assert_equal user_class.keyring_column_name, :keyring_id
-    assert_equal user_class.encrypted_attributes, []
+    assert_equal user_class.encrypted_attributes, {}
     assert_instance_of Keyring::Base, user_class.keyring
   end
 
@@ -141,7 +141,7 @@ class ActiveRecordTest < Minitest::Test
     end
 
     assert_equal :keyring_id, user_class.keyring_column_name
-    assert_equal [:secret], user_class.encrypted_attributes
+    assert_equal({secret: {encoder: nil}}, user_class.encrypted_attributes)
     assert_instance_of Keyring::Base, user_class.keyring
   end
 
@@ -545,6 +545,21 @@ class ActiveRecordTest < Minitest::Test
 
     assert_equal "42", user.secret
     assert_equal 0, user.keyring_id
+  end
+
+  test "wraps json attributes" do
+    model_class = create_model do
+      keyring_store = {"0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="}
+      attr_keyring keyring_store, digest_salt: ""
+      attr_encrypt :secret, encoder: JSON
+    end
+
+    user = model_class.create(secret: {message: "hello"})
+    user.reload
+
+    expected = {"message" => "hello"}
+
+    assert_equal expected, user.secret
   end
 
   def create_model(table_name = :users, &block)

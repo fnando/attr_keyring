@@ -38,7 +38,10 @@ module Keyring
           expected_hmac = hmac_digest(key.signing_key, encrypted_payload)
 
           unless verify_signature(expected_hmac, hmac)
-            raise InvalidAuthentication, "Expected HMAC to be #{Base64.strict_encode64(expected_hmac)}; got #{Base64.strict_encode64(hmac)} instead" # rubocop:disable Layout/LineLength
+            raise InvalidAuthentication,
+                  "Expected HMAC to be " \
+                  "#{Base64.strict_encode64(expected_hmac)}; " \
+                  "got #{Base64.strict_encode64(hmac)} instead"
           end
 
           cipher.iv = iv
