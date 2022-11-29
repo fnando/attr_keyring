@@ -109,6 +109,25 @@ class SequelTest < Minitest::Test
     assert_equal 0, user.keyring_id
   end
 
+  test "updates encrypted value using set" do
+    model_class = create_model do
+      attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
+                   digest_salt: ""
+      attr_encrypt :secret
+    end
+
+    user = model_class.create(secret: "42")
+    user.set(secret: "new secret")
+    user.save
+
+    user.reload
+
+    assert_equal "new secret", user.secret
+    refute_nil user.encrypted_secret
+    refute_equal user.encrypted_secret, user.secret
+    assert_equal 0, user.keyring_id
+  end
+
   test "updates digest" do
     model_class = create_model do
       attr_keyring Hash("0" => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="),
