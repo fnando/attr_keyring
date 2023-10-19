@@ -12,29 +12,35 @@ module Keyring
           @key_size ||= build_cipher.key_len
         end
 
+        def self.support_auth_data?
+          false
+        end
+
         def self.encrypt(key, message)
           cipher = build_cipher
           cipher.encrypt
           iv = cipher.random_iv
           cipher.iv  = iv
           cipher.key = key.encryption_key
+          cipher.auth_data = "" if support_auth_data?
           encrypted = cipher.update(message) + cipher.final
-          hmac = hmac_digest(key.signing_key, "#{iv}#{encrypted}")
+          auth_tag = ""
+          auth_tag = cipher.auth_tag if support_auth_data?
+          hmac = hmac_digest(key.signing_key, "#{auth_tag}#{iv}#{encrypted}")
 
-          Base64.strict_encode64("#{hmac}#{iv}#{encrypted}")
+          Base64.strict_encode64("#{hmac}#{auth_tag}#{iv}#{encrypted}")
         end
 
         def self.decrypt(key, message)
           cipher = build_cipher
+          iv_size = cipher.random_iv.size
           cipher.decrypt
 
           message = Base64.strict_decode64(message)
 
           hmac = message[0...32]
-          encrypted_payload = message[32..-1]
-          iv = encrypted_payload[0...16]
-          encrypted = encrypted_payload[16..-1]
 
+          encrypted_payload = message[32..-1]
           expected_hmac = hmac_digest(key.signing_key, encrypted_payload)
 
           unless verify_signature(expected_hmac, hmac)
@@ -44,8 +50,19 @@ module Keyring
                   "got #{Base64.strict_encode64(hmac)} instead"
           end
 
+          auth_tag = ""
+          auth_tag = encrypted_payload[0...16] if support_auth_data?
+          iv = encrypted_payload[auth_tag.size...(auth_tag.size + iv_size)]
+          encrypted = encrypted_payload[(auth_tag.size + iv_size)..-1]
+
           cipher.iv = iv
           cipher.key = key.encryption_key
+
+          if support_auth_data?
+            cipher.auth_data = ""
+            cipher.auth_tag = auth_tag
+          end
+
           cipher.update(encrypted) + cipher.final
         end
 
@@ -78,6 +95,16 @@ module Keyring
       class AES256CBC < Base
         def self.cipher_name
           "AES-256-CBC"
+        end
+      end
+
+      class AES256GCM < Base
+        def self.cipher_name
+          "AES-256-GCM"
+        end
+
+        def self.support_auth_data?
+          true
         end
       end
     end

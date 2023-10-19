@@ -60,8 +60,8 @@ puts "✉️ #{decrypted}"
 
 #### Change encryption algorithm
 
-You can choose between `AES-128-CBC`, `AES-192-CBC` and `AES-256-CBC`. By
-default, `AES-128-CBC` will be used.
+You can choose between `AES-128-CBC`, `AES-192-CBC`, `AES-256-CBC`, and
+`AES-256-GCM`. By default, `AES-128-CBC` will be used.
 
 To specify the encryption algorithm, set the `encryption` option. The following
 example uses `AES-256-CBC`.
@@ -186,6 +186,7 @@ the size as half of it is used for HMAC computation.
 - `aes-128-cbc`: 16 bytes (encryption) + 16 bytes (HMAC).
 - `aes-192-cbc`: 24 bytes (encryption) + 24 bytes (HMAC).
 - `aes-256-cbc`: 32 bytes (encryption) + 32 bytes (HMAC).
+- `aes-256-gcm`: 32 bytes (encryption) + 32 bytes (HMAC).
 
 #### About the encrypted message
 

@@ -195,5 +195,71 @@
         }
       }
     }
+  ],
+
+  "aes-256-gcm": [
+    {
+      "action": "encrypt",
+      "description": "encrypts value",
+      "input": "42",
+      "key": {
+        "id": 1,
+        "value": "QTCR5qqiKPouS10H9W7Vhv+nfgM5OHSW20XRga7NrOpEZb32mTNU/4u1753m0eEmQQR+a4xL6/kv6c5DitcUnA=="
+      },
+      "encrypted": {
+        "value": "/+7XkVH0ys1llc8xdLGgEaMe/MLyDfxH6I7JRQ55Leeo2epHQr13KwjKWG2Y+a/QX8il6oasQqpco1pxMaU=",
+        "keyring_id": 1,
+        "digest": "92cfceb39d57d914ed8b14d0e37643de0797ae56"
+      }
+    },
+
+    {
+      "action": "rotate",
+      "description": "rotates key",
+      "input": "42",
+      "key": {
+        "id": 1,
+        "value": "QTCR5qqiKPouS10H9W7Vhv+nfgM5OHSW20XRga7NrOpEZb32mTNU/4u1753m0eEmQQR+a4xL6/kv6c5DitcUnA=="
+      },
+      "encrypted": {
+        "value": "lgb8Uo4Ataks2ms4zu5AEV4EvviKGY/LmSGCz9V/dceUPMw8rvrt2ipflpXfHvOimJXuGYiF/UNQdoUawZM=",
+        "keyring_id": 1,
+        "digest": "92cfceb39d57d914ed8b14d0e37643de0797ae56"
+      },
+      "rotate": {
+        "key": {
+          "id": 2,
+          "value": "Av3qcW5Q8RSfkNk+KKuzHUOEIsihzV/vBc+L/lxq/Yt94tBIJstVqOx5zy2izG7KEJLx3lRyu/xJkT448HPcZQ=="
+        },
+        "encrypted": {
+          "value": "yB07wcW9APz7Xcc2Lhi7TPNSZ/splsNfLmf1+8Dd/wPON9TvXC/XMjMQlIcGbFaRI/am1RIaoJeT2nXayQo=",
+          "keyring_id": 2,
+          "digest": "92cfceb39d57d914ed8b14d0e37643de0797ae56"
+        }
+      }
+    },
+
+    {
+      "action": "update",
+      "description": "updates attribute",
+      "input": "42",
+      "key": {
+        "id": 1,
+        "value": "QTCR5qqiKPouS10H9W7Vhv+nfgM5OHSW20XRga7NrOpEZb32mTNU/4u1753m0eEmQQR+a4xL6/kv6c5DitcUnA=="
+      },
+      "encrypted": {
+        "value": "EwXePYqzAC+vX0oqNhV/juAyARIM9NtLsEo8R6f+DpfwSOfYZdeDiFIkD8xC+GFs+pjDE/L/atgLbxwda5E=",
+        "keyring_id": 1,
+        "digest": "92cfceb39d57d914ed8b14d0e37643de0797ae56"
+      },
+      "update": {
+        "input": "37",
+        "encrypted": {
+          "value": "czUlSNKgtOMdpk2pQ0XKGhiYqY1+bP9cYXHZ4gR9FnRDVQM5yZZDAkSqAofjHfpAq0yqOfqx+6O43qjK8DA=",
+          "keyring_id": 1,
+          "digest": "cb7a1d775e800fd1ee4049f7dca9e041eb9ba083"
+        }
+      }
+    }
   ]
 }

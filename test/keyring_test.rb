@@ -115,6 +115,16 @@ class KeyringTest < Minitest::Test
     assert_equal "42", decrypted
   end
 
+  test "encrypts using AES256GCM" do
+    keys = {"0" => "XZXC+c7VUVGpyAceSUCOBbrp2fjJeeHwoaMQefgSCfp0/HABY5yJ7zRiLZbDlDZ7HytCRsvP4CxXt5hUqtx9Uw=="}
+    keyring = Keyring.new(keys, encryptor: Keyring::Encryptor::AES::AES256GCM, digest_salt: "")
+
+    encrypted, keyring_id, _ = keyring.encrypt("42")
+    decrypted = keyring.decrypt(encrypted, keyring_id)
+
+    assert_equal "42", decrypted
+  end
+
   test "decrypts attr_vault value" do
     key = "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="
     encrypted = Base64.strict_encode64(AttrVault::Cryptor.encrypt("42", key))
@@ -126,7 +136,7 @@ class KeyringTest < Minitest::Test
   end
 
   test "works with keys as symbols (rails 7.0 fix)" do
-    sym_key = "0".to_sym
+    sym_key = :"0"
     keys = {sym_key => "uDiMcWVNTuz//naQ88sOcN+E40CyBRGzGTT7OkoBS6M="}
     keyring = Keyring.new(keys, digest_salt: "")
 

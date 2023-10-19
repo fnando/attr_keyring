@@ -67,6 +67,8 @@ class ScenariosTest < Minitest::Test
                     Keyring::Encryptor::AES::AES192CBC
                   when "aes-256-cbc"
                     Keyring::Encryptor::AES::AES256CBC
+                  when "aes-256-gcm"
+                    Keyring::Encryptor::AES::AES256GCM
                   else
                     raise "Invalid encryption; #{encryption}"
                   end
