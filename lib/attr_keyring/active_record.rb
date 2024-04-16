@@ -21,7 +21,7 @@ module AttrKeyring
           def reload(options = nil)
             instance = super
 
-            self.class.encrypted_attributes.each do |attribute, _options|
+            self.class.encrypted_attributes.each_key do |attribute|
               clear_decrypted_column_cache(attribute)
             end
 

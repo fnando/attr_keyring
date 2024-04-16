@@ -111,7 +111,7 @@ class ActiveRecordTest < Minitest::Test
     end
 
     assert_equal :keyring_id, abstract_class.keyring_column_name
-    assert_equal({}, abstract_class.encrypted_attributes)
+    assert_empty(abstract_class.encrypted_attributes)
     assert_instance_of Keyring::Base, abstract_class.keyring
   end
 
