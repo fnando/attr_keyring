@@ -16,6 +16,7 @@ class ScenariosTest < Minitest::Test
     test "decrypts value (#{encryption})" do
       keyring = Keyring.new({scenario.dig("key", "id") => scenario.dig("key", "value")}, encryptor: encryption, digest_salt: "")
       decrypted = keyring.decrypt(scenario.dig("encrypted", "value"), scenario.dig("encrypted", "keyring_id"))
+
       assert_equal scenario["input"], decrypted
     end
   end
@@ -70,7 +71,7 @@ class ScenariosTest < Minitest::Test
                     raise "Invalid encryption; #{encryption}"
                   end
 
-      public_send("scenario_#{action}", encryptor, scenario)
+      public_send(:"scenario_#{action}", encryptor, scenario)
     end
   end
 end

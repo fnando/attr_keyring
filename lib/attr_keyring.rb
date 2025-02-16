@@ -55,7 +55,7 @@ module AttrKeyring
     end
 
     def define_attr_encrypt_writer(attribute)
-      define_method("#{attribute}=") do |value|
+      define_method(:"#{attribute}=") do |value|
         attr_encrypt_column(attribute, value)
       end
     end
@@ -80,12 +80,12 @@ module AttrKeyring
       encrypted_value, keyring_id, digest =
         self.class.keyring.encrypt(value, previous_keyring_id)
 
-      public_send("#{self.class.keyring_column_name}=", keyring_id)
-      public_send("encrypted_#{attribute}=", encrypted_value)
+      public_send(:"#{self.class.keyring_column_name}=", keyring_id)
+      public_send(:"encrypted_#{attribute}=", encrypted_value)
 
-      return unless respond_to?("#{attribute}_digest=")
+      return unless respond_to?(:"#{attribute}_digest=")
 
-      public_send("#{attribute}_digest=", digest)
+      public_send(:"#{attribute}_digest=", digest)
     end
 
     private def attr_decrypt_column(attribute)
@@ -95,7 +95,7 @@ module AttrKeyring
         return instance_variable_get(cache_name)
       end
 
-      encrypted_value = public_send("encrypted_#{attribute}")
+      encrypted_value = public_send(:"encrypted_#{attribute}")
 
       return unless encrypted_value
 
@@ -119,9 +119,9 @@ module AttrKeyring
     end
 
     private def reset_encrypted_column(attribute)
-      public_send("encrypted_#{attribute}=", nil)
-      if respond_to?("#{attribute}_digest=")
-        public_send("#{attribute}_digest=", nil)
+      public_send(:"encrypted_#{attribute}=", nil)
+      if respond_to?(:"#{attribute}_digest=")
+        public_send(:"#{attribute}_digest=", nil)
       end
       nil
     end
@@ -140,14 +140,14 @@ module AttrKeyring
 
         encrypted_value, _, digest = self.class.keyring.encrypt(value)
 
-        public_send("encrypted_#{attribute}=", encrypted_value)
+        public_send(:"encrypted_#{attribute}=", encrypted_value)
 
-        if respond_to?("#{attribute}_digest")
-          public_send("#{attribute}_digest=", digest)
+        if respond_to?(:"#{attribute}_digest")
+          public_send(:"#{attribute}_digest=", digest)
         end
       end
 
-      public_send("#{self.class.keyring_column_name}=", keyring_id)
+      public_send(:"#{self.class.keyring_column_name}=", keyring_id)
     end
 
     private def encryptable_value?(value)

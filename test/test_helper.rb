@@ -45,4 +45,5 @@ DB = Sequel.connect("postgres:///test")
 Sequel::Model.plugin :timestamps, update_on_create: true
 
 class ApplicationRecord < ActiveRecord::Base
+  self.abstract_class = true
 end

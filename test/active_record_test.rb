@@ -32,6 +32,7 @@ class ActiveRecordTest < Minitest::Test
     end
 
     user = model_class.create(secret: "42")
+
     assert_equal user, user.reload
   end
 
@@ -121,8 +122,8 @@ class ActiveRecordTest < Minitest::Test
       include AttrKeyring.active_record
     end
 
-    assert_equal user_class.keyring_column_name, :keyring_id
-    assert_equal user_class.encrypted_attributes, {}
+    assert_equal :keyring_id, user_class.keyring_column_name
+    assert_empty(user_class.encrypted_attributes)
     assert_instance_of Keyring::Base, user_class.keyring
   end
 
@@ -420,8 +421,8 @@ class ActiveRecordTest < Minitest::Test
     end
 
     model_class.keyring.expects(:decrypt).once.returns("DECRYPTED")
-
     user = model_class.create(secret: "42")
+
     2.times { user.secret }
   end
 

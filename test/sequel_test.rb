@@ -325,9 +325,9 @@ class SequelTest < Minitest::Test
       attr_encrypt :secret
     end
 
-    model_class.keyring.expects(:decrypt).once.returns("DECRYPTED")
-
+    model_class.keyring.expects(:decrypt).once
     user = model_class.create(secret: "42")
+
     2.times { user.secret }
   end
 

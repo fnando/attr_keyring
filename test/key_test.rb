@@ -11,15 +11,22 @@ class KeyTest < Minitest::Test
   end
 
   test "accepts keys with valid size (bytes)" do
-    Keyring::Key.new(1, SecureRandom.bytes(32), 16)
+    key = Keyring::Key.new(1, SecureRandom.bytes(32), 16)
+
+    assert_instance_of Keyring::Key, key
   end
 
   test "accepts keys with valid size (base64-encoded)" do
-    Keyring::Key.new(1, Base64.encode64(SecureRandom.bytes(32)), 16)
+    key = Keyring::Key.new(1, Base64.encode64(SecureRandom.bytes(32)), 16)
+
+    assert_instance_of Keyring::Key, key
   end
 
   test "accepts keys with valid size (base64-strict-encoded)" do
-    Keyring::Key.new(1, Base64.strict_encode64(SecureRandom.bytes(32)), 16)
+    key =
+      Keyring::Key.new(1, Base64.strict_encode64(SecureRandom.bytes(32)), 16)
+
+    assert_instance_of Keyring::Key, key
   end
 
   test "raises when key has invalid size" do

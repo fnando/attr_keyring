@@ -8,15 +8,9 @@ AllCops:
     - vendor/**/*
     - gemfiles/**/*
 
-Metrics/AbcSize:
-  Enabled: false
-
 Layout/LineLength:
   Exclude:
     - test/**/*
 
-Metrics/MethodLength:
-  Enabled: false
-
-Metrics/ClassLength:
+Minitest/NoAssertions:
   Enabled: false
